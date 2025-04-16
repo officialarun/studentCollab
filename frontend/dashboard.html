@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Collaboration Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .notifications-dropdown {
+            z-index: 50;
+        }
+        .user-dropdown {
+            z-index: 50;
+        }
+        .modal {
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm relative z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20">
+                <!-- Left side - Logo and Main Links -->
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="text-3xl font-bold text-primary-600">CodeSpace</a>
+                    </div>
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                        <a href="/dashboard.html" class="border-primary-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-base font-medium">
+                            Dashboard
+                        </a>
+                        <a href="/projects.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-base font-medium">
+                            All Projects
+                        </a>
+                        <a href="/profile.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-base font-medium">
+                            Profile
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Right side - Notifications and User Menu -->
+                <div class="flex items-center space-x-6">
+                    <!-- Search Bar -->
+                    <div class="hidden md:block">
+                        <div class="relative">
+                            <input type="text" placeholder="Search projects..." class="w-72 px-4 py-2.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Dropdown -->
+                    <div class="relative">
+                        <button id="notificationsBtn" class="p-2.5 text-gray-600 hover:text-gray-900 relative">
+                            <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notificationCount" class="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">0</span>
+                        </button>
+                        <div id="notificationsDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 notifications-dropdown">
+                            <div class="py-1">
+                                <div class="px-4 py-2 border-b border-gray-200">
+                                    <h3 class="text-sm font-semibold text-gray-900">Notifications</h3>
+                                </div>
+                                <div id="notificationsList" class="max-h-96 overflow-y-auto">
+                                    <!-- Notifications will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button id="userMenuButton" class="flex items-center text-gray-600 hover:text-gray-900">
+                            <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-primary-600 font-medium text-lg" id="userInitials"></span>
+                            </div>
+                            <span id="userName" class="ml-3 text-base font-medium"></span>
+                            <svg class="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 user-dropdown">
+                            <div class="py-1">
+                                <a href="/profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <div class="border-t border-gray-100"></div>
+                                <a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <div class="flex space-x-4">
+                <a href="/projects.html" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                    View All Projects
+                </a>
+                <button id="createProjectBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create New Project
+                </button>
+            </div>
+        </div>
+
+        <!-- Create Project Modal -->
+        <div id="createProjectModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full modal">
+            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Create New Project</h3>
+                    <form id="createProjectForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Title</label>
+                            <input type="text" id="projectTitle" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea id="projectDescription" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Tech Stack (comma-separated)</label>
+                            <input type="text" id="projectTechStack" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Looking For (comma-separated)</label>
+                            <input type="text" id="projectLookingFor" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">GitHub Link (optional)</label>
+                            <input type="url" id="projectGithubLink" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        </div>
+                        <div class="flex justify-end space-x-3">
+                            <button type="button" id="cancelCreateProject" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700">
+                                Create Project
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projects Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">My Projects</h2>
+                <button id="createProjectBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Create New Project
+                </button>
+            </div>
+            <div id="projectsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Projects will be populated here -->
+            </div>
+        </div>
+
+        <!-- Collaborated Projects Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Collaborated Projects</h2>
+            <div id="collaboratedProjectsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Collaborated projects will be populated here -->
+            </div>
+        </div>
+
+        <!-- Hackathon Teams Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold text-gray-900">My Hackathon Teams</h2>
+                <div class="flex space-x-4">
+                    <button onclick="resetJoinRequests()" 
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                        Reset Join Requests
+                    </button>
+                    <button id="createHackathonTeamBtn" class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Register Team for Hackathon
+                    </button>
+                </div>
+            </div>
+            <div id="hackathonTeamsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Hackathon teams will be populated here -->
+            </div>
+        </div>
+
+        <!-- Teams I'm In Section -->
+        <div class="bg-white shadow rounded-lg p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Teams I'm In</h2>
+            <div id="teamsImInList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Teams I'm in will be populated here -->
+            </div>
+        </div>
+
+        <!-- All Upcoming Hackathons Section -->
+        <div class="bg-white shadow rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">All Upcoming Hackathons</h2>
+            <div id="allHackathonsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- All hackathons will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Platform Info -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900">CodeSpace</h3>
+                    <p class="text-sm text-gray-500">Connecting students to collaborate on innovative projects and build their portfolio.</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">GitHub</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.91-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">LinkedIn</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-.88-.06-1.601-1-1.601-1 0-1.16.781-1.16 1.601v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Quick Links</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li>
+                            <a href="/dashboard.html" class="text-base text-gray-500 hover:text-gray-900">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="/projects.html" class="text-base text-gray-500 hover:text-gray-900">All Projects</a>
+                        </li>
+                        <li>
+                            <a href="/profile.html" class="text-base text-gray-500 hover:text-gray-900">Profile</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Create Project</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Resources</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Getting Started</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Best Practices</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">FAQ</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Support</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h3 class="text-sm font-semibold text-gray-900 tracking-wider uppercase">Legal</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Privacy Policy</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Terms of Service</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Cookie Policy</a>
+                        </li>
+                        <li>
+                            <a href="#" class="text-base text-gray-500 hover:text-gray-900">Contact Us</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="mt-12 border-t border-gray-200 pt-8">
+                <p class="text-base text-gray-400 text-center">
+                    &copy; 2024 StudentCollab. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Create Hackathon Team Modal -->
+    <div id="createHackathonTeamModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Register Team for Hackathon</h3>
+                <form id="createHackathonTeamForm" class="space-y-4">
+                    <div>
+                        <label for="hackathonName" class="block text-sm font-medium text-gray-700">Hackathon Name</label>
+                        <input type="text" id="hackathonName" name="hackathonName" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="teamName" class="block text-sm font-medium text-gray-700">Team Name</label>
+                        <input type="text" id="teamName" name="teamName" required
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="teamSize" class="block text-sm font-medium text-gray-700">Team Size</label>
+                        <input type="number" id="teamSize" name="teamSize" required min="1"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="vacantPositions" class="block text-sm font-medium text-gray-700">Vacant Positions (comma-separated)</label>
+                        <input type="text" id="vacantPositions" name="vacantPositions" required
+                            placeholder="e.g., Backend Developer, Frontend Developer"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="requiredTechStack" class="block text-sm font-medium text-gray-700">Required Tech Stack (comma-separated)</label>
+                        <input type="text" id="requiredTechStack" name="requiredTechStack" required
+                            placeholder="e.g., Node.js, React, MongoDB"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500">
+                    </div>
+                    <div>
+                        <label for="specificRequirements" class="block text-sm font-medium text-gray-700">Specific Requirements</label>
+                        <textarea id="specificRequirements" name="specificRequirements" rows="3"
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-primary-500 focus:border-primary-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelCreateHackathonTeam"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+                            Create Team
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadUserProjects();
+            loadCollaboratedProjects();
+            loadHackathonTeams();
+            loadTeamsImIn();
+            loadAllHackathons();
+            loadNotifications();
+        });
+
+        const API_URL = 'http://localhost:5000/api';
+        let currentUserId = null;
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.isAuthenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                // Store current user ID
+                currentUserId = data.user._id;
+
+                // Update user name and initials
+                const userName = data.user.name;
+                document.getElementById('userName').textContent = userName;
+                
+                // Get user initials
+                const initials = userName
+                    .split(' ')
+                    .map(word => word[0])
+                    .join('')
+                    .toUpperCase();
+                document.getElementById('userInitials').textContent = initials;
+
+                // Update active navigation link
+                const currentPath = window.location.pathname;
+                const navLinks = document.querySelectorAll('nav a');
+                navLinks.forEach(link => {
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('border-primary-500', 'text-gray-900');
+                        link.classList.remove('border-transparent', 'text-gray-500');
+                    } else {
+                        link.classList.remove('border-primary-500', 'text-gray-900');
+                        link.classList.add('border-transparent', 'text-gray-500');
+                    }
+                });
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Load user projects
+        async function loadUserProjects() {
+            try {
+                console.log('Loading user projects...');
+                const response = await fetch(`${API_URL}/users/projects`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error response:', errorData);
+                    throw new Error(errorData.message || 'Failed to load projects');
+                }
+                
+                const projects = await response.json();
+                console.log('Loaded projects:', projects);
+                
+                const projectsContainer = document.getElementById('projectsList');
+                
+                if (!projects || projects.length === 0) {
+                    projectsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-12">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No projects</h3>
+                            <p class="mt-1 text-sm text-gray-500">Get started by creating a new project.</p>
+                            <div class="mt-6">
+                                <button onclick="document.getElementById('createProjectBtn').click()" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    Create New Project
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                projectsContainer.innerHTML = projects.map(project => `
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">${project.title}</h3>
+                        <p class="text-gray-600 mb-4">${project.description}</p>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Tech Stack:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${project.techStack.map(tech => `
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${tech}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Looking For:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${project.lookingFor.map(role => `
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${role}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="/project.html?id=${project._id}" class="text-blue-600 hover:text-blue-700">View Details</a>
+                            <div class="space-x-2">
+                                <button onclick="editProject('${project._id}')" class="text-gray-600 hover:text-gray-900">Edit</button>
+                                <button onclick="deleteProject('${project._id}')" class="text-red-600 hover:text-red-700">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading projects:', error);
+                const projectsContainer = document.getElementById('projectsList');
+                projectsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Error loading projects. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${API_URL}/notifications`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const container = document.getElementById('notificationsList');
+                const countElement = document.getElementById('notificationCount');
+                
+                // Update notification count
+                const unreadCount = data.filter(n => !n.read).length;
+                countElement.textContent = unreadCount;
+                
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<p class="px-4 py-2 text-gray-500">No notifications</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(notification => {
+                    let actionButtons = '';
+                    
+                    // Add approve/reject buttons for join requests
+                    if (notification.type === 'hackathon_join_request') {
+                        actionButtons = `
+                            <div class="flex space-x-2 mt-2">
+                                <button onclick="handleJoinRequest('${notification.team}', '${notification.fromUser._id}', 'accept')" 
+                                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Accept
+                                </button>
+                                <button onclick="handleJoinRequest('${notification.team}', '${notification.fromUser._id}', 'reject')" 
+                                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    Reject
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add approve/reject buttons for collaboration requests
+                    if (notification.type === 'collaboration_request' && !notification.read) {
+                        actionButtons = `
+                            <div class="flex space-x-2 mt-2">
+                                <button onclick="handleCollaborationRequest('${notification.project._id}', '${notification.fromUser._id}', 'accept')" 
+                                        class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                    Accept
+                                </button>
+                                <button onclick="handleCollaborationRequest('${notification.project._id}', '${notification.fromUser._id}', 'reject')" 
+                                        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                                    Reject
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    return `
+                        <div class="bg-white p-4 rounded-lg shadow mb-4 ${!notification.read ? 'border-l-4 border-blue-500' : ''}">
+                            <div class="flex flex-col">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex-1">
+                                        <p class="text-gray-800">${notification.message}</p>
+                                        <p class="text-sm text-gray-500 mt-1">${new Date(notification.createdAt).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+                const container = document.getElementById('notificationsList');
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-red-500">Error loading notifications. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Handle join request (accept/reject)
+        async function handleJoinRequest(teamId, userId, action) {
+            try {
+                console.log('Handling join request:', { teamId, userId, action });
+                if (!teamId) {
+                    throw new Error('Team ID is required');
+                }
+                
+                const response = await fetch(`${API_URL}/hackathon-teams/${teamId}/handle-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        action
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Handle request response:', data);
+                
+                // Refresh notifications and teams
+                loadNotifications();
+                loadTeamsImIn();
+                loadAllHackathons();
+                
+                alert(action === 'accept' ? 'Join request accepted!' : 'Join request rejected.');
+            } catch (error) {
+                console.error('Error handling join request:', error);
+                alert(error.message || 'Error handling join request');
+            }
+        }
+
+        // Create project form submission
+        document.getElementById('createProjectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const projectData = {
+                title: document.getElementById('projectTitle').value,
+                description: document.getElementById('projectDescription').value,
+                techStack: document.getElementById('projectTechStack').value.split(',').map(tech => tech.trim()),
+                lookingFor: document.getElementById('projectLookingFor').value.split(',').map(role => role.trim()),
+                githubLink: document.getElementById('projectGithubLink').value
+            };
+
+            try {
+                console.log('Submitting project data:', projectData);
+                const response = await fetch(`${API_URL}/projects`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(projectData)
+                });
+
+                const data = await response.json();
+                console.log('Server response:', data);
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to create project');
+                }
+
+                // Close modal and refresh projects
+                document.getElementById('createProjectModal').classList.add('hidden');
+                document.getElementById('createProjectForm').reset();
+                loadUserProjects();
+                
+                // Show success message
+                alert('Project created successfully!');
+            } catch (error) {
+                console.error('Error creating project:', error);
+                alert(`Error creating project: ${error.message}`);
+            }
+        });
+
+        // Modal handlers
+        document.getElementById('createProjectBtn').addEventListener('click', () => {
+            document.getElementById('createProjectModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelCreateProject').addEventListener('click', () => {
+            document.getElementById('createProjectModal').classList.add('hidden');
+        });
+
+        // Notifications dropdown handler
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // User menu dropdown handler
+        document.getElementById('userMenuButton').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Logout handler
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userDropdown = document.getElementById('userDropdown');
+
+            if (!notificationsBtn.contains(e.target) && !notificationsDropdown.contains(e.target)) {
+                notificationsDropdown.classList.add('hidden');
+            }
+
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // Load hackathon teams
+        async function loadHackathonTeams() {
+            try {
+                const response = await fetch(`${API_URL}/hackathon-teams/my-teams`, {
+                    credentials: 'include'
+                });
+                const teams = await response.json();
+                
+                const teamsContainer = document.getElementById('hackathonTeamsList');
+                
+                if (!teams || teams.length === 0) {
+                    teamsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-gray-500">You haven't registered any teams for hackathons yet.</p>
+                            <button onclick="document.getElementById('createHackathonTeamBtn').click()" 
+                                    class="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Register Team
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                teamsContainer.innerHTML = teams.map(team => `
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">${team.teamName}</h3>
+                        <p class="text-gray-600 mb-4">${team.hackathonName}</p>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Team Size:</h4>
+                            <p class="text-gray-600">${team.currentSize}/${team.teamSize} members</p>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Vacant Positions:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${team.vacantPositions.map(pos => `
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${pos.position}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Required Tech Stack:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${team.requiredTechStack.map(tech => `
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${tech}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="/hackathon-team.html?id=${team._id}" class="text-green-600 hover:text-green-700">View Details</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading hackathon teams:', error);
+                const teamsContainer = document.getElementById('hackathonTeamsList');
+                teamsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Error loading hackathon teams. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load teams I'm in
+        async function loadTeamsImIn() {
+            try {
+                const response = await fetch(`${API_URL}/hackathon-teams/teams-im-in`, {
+                    credentials: 'include'
+                });
+                const teams = await response.json();
+                
+                const teamsContainer = document.getElementById('teamsImInList');
+                
+                if (!teams || teams.length === 0) {
+                    teamsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-gray-500">You haven't joined any hackathon teams yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                teamsContainer.innerHTML = teams.map(team => {
+                    const myMemberInfo = team.teamMembers.find(m => m.user && m.user._id === currentUserId);
+                    const position = myMemberInfo ? myMemberInfo.position : 'Unknown Position';
+                    
+                    return `
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${team.teamName}</h3>
+                            <p class="text-gray-600 mb-4">${team.hackathonName}</p>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Team Lead:</h4>
+                                <p class="text-gray-600">${team.owner.name}</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Your Position:</h4>
+                                <p class="text-gray-600">${position}</p>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="/hackathon-team.html?id=${team._id}" class="text-green-600 hover:text-green-700">View Details</a>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading teams I\'m in:', error);
+                const teamsContainer = document.getElementById('teamsImInList');
+                teamsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Error loading teams. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load all hackathons
+        async function loadAllHackathons() {
+            try {
+                const response = await fetch(`${API_URL}/hackathon-teams`, {
+                    credentials: 'include'
+                });
+                const teams = await response.json();
+                
+                const teamsContainer = document.getElementById('allHackathonsList');
+                
+                if (!teams || teams.length === 0) {
+                    teamsContainer.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-gray-500">No hackathon teams available at the moment.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                teamsContainer.innerHTML = teams.map(team => {
+                    // Check if current user is the team owner
+                    const isOwner = team.owner._id === currentUserId;
+                    
+                    return `
+                        <div class="bg-white p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">${team.teamName}</h3>
+                            <p class="text-gray-600 mb-4">${team.hackathonName}</p>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Team Lead:</h4>
+                                <p class="text-gray-600">${team.owner.name}</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Team Size:</h4>
+                                <p class="text-gray-600">${team.currentSize}/${team.teamSize} members</p>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Vacant Positions:</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${team.vacantPositions.map(pos => `
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${pos.position}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <h4 class="text-sm font-medium text-gray-700 mb-1">Required Tech Stack:</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    ${team.requiredTechStack.map(tech => `
+                                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${tech}</span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <a href="/hackathon-team.html?id=${team._id}" class="text-green-600 hover:text-green-700">View Details</a>
+                                ${!isOwner ? `
+                                    <button onclick="requestToJoinTeam('${team._id}')" 
+                                            class="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
+                                        Request to Join
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading all hackathons:', error);
+                const teamsContainer = document.getElementById('allHackathonsList');
+                teamsContainer.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Error loading hackathons. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Request to join team
+        async function requestToJoinTeam(teamId) {
+            try {
+                console.log('Requesting to join team:', teamId);
+                const position = prompt('Which position would you like to apply for?');
+                if (!position) return;
+
+                console.log('Sending request with position:', position);
+                const requestData = { position };
+                console.log('Request data:', requestData);
+
+                const response = await fetch(`${API_URL}/hackathon-teams/${teamId}/join-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(requestData)
+                });
+
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to send join request');
+                }
+
+                alert('Join request sent successfully!');
+                loadNotifications(); // Refresh notifications
+                loadAllHackathons(); // Refresh the hackathons list
+            } catch (error) {
+                console.error('Error requesting to join team:', error);
+                alert(error.message || 'Error sending join request');
+            }
+        }
+
+        // Create hackathon team form handler
+        document.getElementById('createHackathonTeamForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            try {
+                console.log('Submitting hackathon team form...');
+                
+                const formData = {
+                    hackathonName: document.getElementById('hackathonName').value,
+                    teamName: document.getElementById('teamName').value,
+                    teamSize: parseInt(document.getElementById('teamSize').value),
+                    vacantPositions: document.getElementById('vacantPositions').value.split(',').map(pos => ({
+                        position: pos.trim(),
+                        required: true
+                    })),
+                    requiredTechStack: document.getElementById('requiredTechStack').value.split(',').map(tech => tech.trim()),
+                    specificRequirements: document.getElementById('specificRequirements').value
+                };
+
+                console.log('Form data:', formData);
+
+                const response = await fetch(`${API_URL}/hackathon-teams`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                console.log('Server response:', data);
+                
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to create team');
+                }
+
+                // Close modal and refresh teams
+                document.getElementById('createHackathonTeamModal').classList.add('hidden');
+                document.getElementById('createHackathonTeamForm').reset();
+                loadHackathonTeams();
+                loadAllHackathons();
+                
+                // Show success message
+                alert('Team created successfully!');
+            } catch (error) {
+                console.error('Error creating hackathon team:', error);
+                alert(error.message || 'Error creating team. Please try again.');
+            }
+        });
+
+        // Modal handlers
+        document.getElementById('createHackathonTeamBtn').addEventListener('click', () => {
+            document.getElementById('createHackathonTeamModal').classList.remove('hidden');
+        });
+
+        document.getElementById('cancelCreateHackathonTeam').addEventListener('click', () => {
+            document.getElementById('createHackathonTeamModal').classList.add('hidden');
+        });
+
+        // Add function to load collaborated projects
+        async function loadCollaboratedProjects() {
+            try {
+                const response = await fetch(`${API_URL}/users/collaborations`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load collaborated projects');
+                }
+                
+                const projects = await response.json();
+                const container = document.getElementById('collaboratedProjectsList');
+                
+                if (!projects || projects.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-8">
+                            <p class="text-gray-500">You haven't collaborated on any projects yet.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = projects.map(project => `
+                    <div class="bg-white p-6 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">${project.title}</h3>
+                        <p class="text-gray-600 mb-4">${project.description}</p>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Tech Stack:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${project.techStack.map(tech => `
+                                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${tech}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-1">Looking For:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                ${project.lookingFor.map(role => `
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${role}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <a href="/project.html?id=${project._id}" class="text-blue-600 hover:text-blue-700">View Details</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading collaborated projects:', error);
+                const container = document.getElementById('collaboratedProjectsList');
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-red-500">Error loading collaborated projects. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Reset join requests
+        async function resetJoinRequests() {
+            try {
+                console.log('Resetting join requests...');
+                const response = await fetch(`${API_URL}/hackathon-teams/reset-requests`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Reset response:', data);
+                
+                alert('Join requests have been reset successfully!');
+                loadNotifications(); // Refresh notifications
+                loadAllHackathons(); // Refresh the hackathons list
+            } catch (error) {
+                console.error('Error resetting join requests:', error);
+                alert(error.message || 'Error resetting join requests');
+            }
+        }
+    </script>
+</body>
+</html> 

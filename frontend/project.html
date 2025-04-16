@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details - Student Collaboration Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/dashboard.html" class="text-2xl font-bold text-primary-600">StudentCollab</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications Dropdown -->
+                    <div class="relative">
+                        <button id="notificationsBtn" class="p-2 text-gray-600 hover:text-gray-900">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                            <span id="notificationCount" class="absolute top-0 right-0 block h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">0</span>
+                        </button>
+                        <div id="notificationsDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
+                            <div class="py-1">
+                                <div id="notificationsList" class="max-h-96 overflow-y-auto">
+                                    <!-- Notifications will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button id="userMenuButton" class="flex items-center text-gray-600 hover:text-gray-900">
+                            <span id="userName" class="mr-2"></span>
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                            <div class="py-1">
+                                <a href="/dashboard.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Dashboard</a>
+                                <a href="/profile.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <a href="#" id="logoutButton" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Project Details -->
+        <div id="projectDetails" class="bg-white shadow rounded-lg p-6">
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-8">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            </div>
+
+            <!-- Project Content -->
+            <div id="projectContent" class="hidden">
+                <div class="flex justify-between items-start mb-6">
+                    <h1 id="projectTitle" class="text-2xl font-bold text-gray-900"></h1>
+                    <span id="projectStatus" class="px-3 py-1 text-sm font-medium rounded-full"></span>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Description</h2>
+                    <p id="projectDescription" class="text-gray-600"></p>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Tech Stack</h2>
+                    <div id="projectTechStack" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Looking For</h2>
+                    <div id="projectLookingFor" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Project Owner</h2>
+                    <div id="projectOwner" class="flex items-center">
+                        <span class="text-gray-600"></span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-2">Collaborators</h2>
+                    <div id="projectCollaborators" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <!-- Project Actions -->
+                <div class="mt-6 flex justify-between items-center">
+                    <div class="flex space-x-4">
+                        <a href="/projects.html" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Back to Projects
+                        </a>
+                        <button id="requestCollaborationBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                            Request Collaboration
+                        </button>
+                    </div>
+                    <div id="projectOwnerActions" class="hidden">
+                        <button onclick="editProject()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                            Edit Project
+                        </button>
+                        <button onclick="deleteProject()" class="ml-2 px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700">
+                            Delete Project
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="hidden text-center py-8 text-red-600">
+                Error loading project details.
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentUserId = null;
+        let projectOwnerId = null;
+        let currentProject = null;
+        let currentUser = null;
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.isAuthenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                currentUserId = data.user._id;
+                currentUser = data.user;
+                document.getElementById('userName').textContent = data.user.name;
+                
+                // Load project details
+                loadProject();
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Load project details
+        async function loadProject() {
+            const loadingState = document.getElementById('loadingState');
+            const projectContent = document.getElementById('projectContent');
+            const errorState = document.getElementById('errorState');
+
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+
+                if (!projectId) {
+                    throw new Error('Project ID not found');
+                }
+
+                const response = await fetch(`${API_URL}/projects/${projectId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load project');
+                }
+
+                currentProject = await response.json();
+                projectOwnerId = currentProject.owner._id;
+
+                // Update project details
+                document.getElementById('projectTitle').textContent = currentProject.title;
+                document.getElementById('projectDescription').textContent = currentProject.description;
+                document.getElementById('projectOwner').querySelector('span').textContent = currentProject.owner.name;
+
+                // Update status badge
+                const statusBadge = document.getElementById('projectStatus');
+                statusBadge.textContent = currentProject.status;
+                statusBadge.className = `px-3 py-1 text-sm font-medium rounded-full ${
+                    currentProject.status === 'open' ? 'bg-green-100 text-green-800' :
+                    currentProject.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                }`;
+
+                // Update tech stack
+                const techStackContainer = document.getElementById('projectTechStack');
+                techStackContainer.innerHTML = currentProject.techStack.map(tech => `
+                    <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">${tech}</span>
+                `).join('');
+
+                // Update looking for
+                const lookingForContainer = document.getElementById('projectLookingFor');
+                lookingForContainer.innerHTML = currentProject.lookingFor.map(role => `
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${role}</span>
+                `).join('');
+
+                // Update collaborators
+                const collaboratorsContainer = document.getElementById('projectCollaborators');
+                collaboratorsContainer.innerHTML = currentProject.collaborators.map(collaborator => `
+                    <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">${collaborator.name}</span>
+                `).join('');
+
+                // Show/hide collaboration request button based on ownership and collaboration status
+                const requestCollaborationBtn = document.getElementById('requestCollaborationBtn');
+                const projectOwnerActions = document.getElementById('projectOwnerActions');
+
+                if (currentUserId === projectOwnerId) {
+                    requestCollaborationBtn.classList.add('hidden');
+                    projectOwnerActions.classList.remove('hidden');
+                } else {
+                    // Check if user is already a collaborator
+                    const isCollaborator = currentProject.collaborators.some(c => c._id === currentUserId);
+                    if (isCollaborator) {
+                        requestCollaborationBtn.classList.add('hidden');
+                    } else {
+                        requestCollaborationBtn.classList.remove('hidden');
+                    }
+                    projectOwnerActions.classList.add('hidden');
+                }
+
+                loadingState.classList.add('hidden');
+                projectContent.classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading project:', error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+            }
+        }
+
+        // Request collaboration
+        document.getElementById('requestCollaborationBtn').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`${API_URL}/projects/${currentProject._id}/request-collaboration`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to request collaboration');
+                }
+
+                alert('Collaboration request sent successfully!');
+                document.getElementById('requestCollaborationBtn').disabled = true;
+                document.getElementById('requestCollaborationBtn').textContent = 'Request Sent';
+            } catch (error) {
+                console.error('Error requesting collaboration:', error);
+                alert(error.message || 'Error requesting collaboration');
+            }
+        });
+
+        // Load notifications
+        async function loadNotifications() {
+            try {
+                const response = await fetch(`${API_URL}/users/notifications`, {
+                    credentials: 'include'
+                });
+                const notifications = await response.json();
+                
+                const notificationsList = document.getElementById('notificationsList');
+                const notificationCount = document.getElementById('notificationCount');
+                
+                // Update notification count
+                const unreadCount = notifications.filter(n => !n.read).length;
+                notificationCount.textContent = unreadCount;
+                
+                notificationsList.innerHTML = notifications.map(notification => `
+                    <div class="px-4 py-3 ${notification.read ? 'bg-white' : 'bg-gray-50'} hover:bg-gray-100 cursor-pointer" onclick="handleNotification('${notification._id}')">
+                        <p class="text-sm text-gray-900">${notification.message}</p>
+                        <p class="text-xs text-gray-500 mt-1">${new Date(notification.createdAt).toLocaleString()}</p>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Handle notification click
+        async function handleNotification(notificationId) {
+            try {
+                await fetch(`${API_URL}/users/notifications/${notificationId}/read`, {
+                    method: 'PUT',
+                    credentials: 'include'
+                });
+                loadNotifications();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // Notifications dropdown handler
+        document.getElementById('notificationsBtn').addEventListener('click', () => {
+            const dropdown = document.getElementById('notificationsDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // User menu dropdown handler
+        document.getElementById('userMenuButton').addEventListener('click', () => {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('hidden');
+        });
+
+        // Logout handler
+        document.getElementById('logoutButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            const notificationsBtn = document.getElementById('notificationsBtn');
+            const notificationsDropdown = document.getElementById('notificationsDropdown');
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userDropdown = document.getElementById('userDropdown');
+
+            if (!notificationsBtn.contains(e.target) && !notificationsDropdown.contains(e.target)) {
+                notificationsDropdown.classList.add('hidden');
+            }
+
+            if (!userMenuButton.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+
+        // Initialize page
+        checkAuth();
+        loadNotifications();
+    </script>
+</body>
+</html> 

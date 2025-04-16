@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hackathon Team Details - Student Collaboration Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .modal {
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <a href="/" class="text-2xl font-bold text-primary-600">CodeSpace</a>
+                    </div>
+                    <div class="hidden sm:ml-8 sm:flex sm:space-x-8">
+                        <a href="/dashboard.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="/projects.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            All Projects
+                        </a>
+                        <a href="/profile.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <!-- Team Header -->
+            <div class="bg-white shadow rounded-lg p-6 mb-6">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900" id="teamName">Loading...</h1>
+                        <p class="text-gray-600 mt-1" id="hackathonName">Loading...</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-sm text-gray-500" id="teamSize">Loading...</span>
+                        <span class="text-sm text-gray-500" id="createdAt">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Details -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Left Column - Team Info -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Team Members -->
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Team Members</h2>
+                        <div id="teamMembersList" class="space-y-4">
+                            <!-- Team members will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Required Tech Stack -->
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Required Tech Stack</h2>
+                        <div class="flex flex-wrap gap-2" id="techStackList">
+                            <!-- Tech stack will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Specific Requirements -->
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Specific Requirements</h2>
+                        <p id="specificRequirements" class="text-gray-600">
+                            <!-- Requirements will be populated here -->
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Column - Join Requests & Vacant Positions -->
+                <div class="space-y-6">
+                    <!-- Join Requests (for team owners) -->
+                    <div id="joinRequestsSection" class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Join Requests</h2>
+                        <div id="joinRequestsList" class="space-y-4">
+                            <!-- Join requests will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Vacant Positions -->
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Vacant Positions</h2>
+                        <div id="vacantPositionsList" class="space-y-4">
+                            <!-- Vacant positions will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentUserId = null;
+        let teamId = null;
+
+        // Get team ID from URL
+        function getTeamId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/status`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.isAuthenticated) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+
+                currentUserId = data.user._id;
+                teamId = getTeamId();
+                
+                if (!teamId) {
+                    window.location.href = '/dashboard.html';
+                    return;
+                }
+
+                loadTeamDetails();
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Load team details
+        async function loadTeamDetails() {
+            try {
+                const response = await fetch(`${API_URL}/hackathon-teams/${teamId}`, {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load team details');
+                }
+                
+                const team = await response.json();
+                
+                // Update header information
+                document.getElementById('teamName').textContent = team.teamName;
+                document.getElementById('hackathonName').textContent = team.hackathonName;
+                document.getElementById('teamSize').textContent = `${team.currentSize}/${team.teamSize} members`;
+                document.getElementById('createdAt').textContent = `Created ${new Date(team.createdAt).toLocaleDateString()}`;
+                
+                // Update tech stack
+                document.getElementById('techStackList').innerHTML = team.requiredTechStack.map(tech => `
+                    <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">${tech}</span>
+                `).join('');
+                
+                // Update specific requirements
+                document.getElementById('specificRequirements').textContent = team.specificRequirements || 'No specific requirements listed.';
+                
+                // Update team members
+                document.getElementById('teamMembersList').innerHTML = team.teamMembers.map(member => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                            <p class="font-medium text-gray-900">${member.user.name}</p>
+                            <p class="text-sm text-gray-500">${member.position}</p>
+                        </div>
+                        ${member.user._id === currentUserId ? `
+                            <span class="px-2 py-1 text-xs font-medium text-green-800 bg-green-100 rounded-full">You</span>
+                        ` : ''}
+                    </div>
+                `).join('');
+                
+                // Update vacant positions
+                document.getElementById('vacantPositionsList').innerHTML = team.vacantPositions.map(pos => `
+                    <div class="p-3 bg-gray-50 rounded-lg">
+                        <p class="font-medium text-gray-900">${pos.position}</p>
+                        ${pos.required ? `
+                            <p class="text-sm text-gray-500">Required</p>
+                        ` : ''}
+                    </div>
+                `).join('');
+                
+                // Show/hide join requests section based on ownership
+                const joinRequestsSection = document.getElementById('joinRequestsSection');
+                if (team.owner._id === currentUserId) {
+                    joinRequestsSection.classList.remove('hidden');
+                    document.getElementById('joinRequestsList').innerHTML = team.joinRequests
+                        .filter(request => request.status === 'pending')
+                        .map(request => `
+                            <div class="p-3 bg-gray-50 rounded-lg">
+                                <p class="font-medium text-gray-900">${request.user.name}</p>
+                                <p class="text-sm text-gray-500">Position: ${request.position}</p>
+                                <div class="mt-2 flex space-x-2">
+                                    <button onclick="handleJoinRequest('${request.user._id}', 'accept')" 
+                                            class="px-2 py-1 text-xs text-white bg-green-600 rounded hover:bg-green-700">
+                                        Accept
+                                    </button>
+                                    <button onclick="handleJoinRequest('${request.user._id}', 'reject')" 
+                                            class="px-2 py-1 text-xs text-white bg-red-600 rounded hover:bg-red-700">
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                        `).join() || '<p class="text-gray-500">No pending join requests</p>';
+                } else {
+                    joinRequestsSection.classList.add('hidden');
+                }
+            } catch (error) {
+                console.error('Error loading team details:', error);
+                alert('Error loading team details. Please try again later.');
+            }
+        }
+
+        // Handle join request
+        async function handleJoinRequest(userId, action) {
+            try {
+                const response = await fetch(`${API_URL}/hackathon-teams/${teamId}/handle-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        userId,
+                        action
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to handle join request');
+                }
+                
+                alert(`Join request ${action}ed successfully!`);
+                loadTeamDetails(); // Refresh team details
+            } catch (error) {
+                console.error('Error handling join request:', error);
+                alert('Error handling join request. Please try again later.');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html> 
