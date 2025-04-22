@@ -53,8 +53,10 @@ if (loginForm) {
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
                 
-                // Redirect to dashboard
-                window.location.href = '/dashboard.html';
+                // Wait a moment to ensure the session cookie is set
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 100);
             } else {
                 throw new Error(data.message || 'Authentication failed');
             }
@@ -81,7 +83,7 @@ if (signupForm) {
             enrollmentId: document.getElementById('enrollmentId').value,
             phoneNumber: document.getElementById('phoneNumber').value,
             password: document.getElementById('password').value,
-            techStack: document.getElementById('techStack').value // Send as comma-separated string
+            techStack: document.getElementById('techStack').value
         };
 
         try {
@@ -100,8 +102,10 @@ if (signupForm) {
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
                 
-                // Redirect to dashboard
-                window.location.href = '/dashboard.html';
+                // Wait a moment to ensure the session cookie is set
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 100);
             } else {
                 throw new Error(data.message || 'Signup failed');
             }
