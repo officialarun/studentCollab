@@ -117,24 +117,35 @@ exports.getCurrentUser = (req, res) => {
 };
 
 exports.getStatus = (req, res) => {
-    if (req.isAuthenticated()) {
-        // Refresh session
-        req.session.touch();
-        res.json({
-            isAuthenticated: true,
-            user: {
-                id: req.user._id,
-                name: req.user.name,
-                email: req.user.email,
-                enrollmentId: req.user.enrollmentId,
-                phoneNumber: req.user.phoneNumber,
-                techStack: req.user.techStack
-            }
-        });
-    } else {
-        res.json({ 
+    try {
+        if (req.isAuthenticated()) {
+            // Refresh session
+            req.session.touch();
+            
+            // Return user data
+            res.json({
+                isAuthenticated: true,
+                user: {
+                    id: req.user._id,
+                    name: req.user.name,
+                    email: req.user.email,
+                    enrollmentId: req.user.enrollmentId,
+                    phoneNumber: req.user.phoneNumber,
+                    techStack: req.user.techStack
+                }
+            });
+        } else {
+            res.json({ 
+                isAuthenticated: false,
+                message: 'Not authenticated'
+            });
+        }
+    } catch (error) {
+        console.error('Error in getStatus:', error);
+        res.status(500).json({
             isAuthenticated: false,
-            message: 'Not authenticated'
+            message: 'Error checking authentication status',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
-}; 
+};

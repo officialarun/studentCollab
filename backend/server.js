@@ -21,7 +21,7 @@ app.use((req, res, next) => {
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
         "font-src 'self' https://fonts.gstatic.com; " +
-        "connect-src 'self' http://localhost:5000 http://localhost:5173;"
+        "connect-src 'self' https://codespace-4bbx.onrender.com https://servefrontend.onrender.com http://localhost:5000 http://localhost:5173;"
     );
     next();
 });
@@ -36,25 +36,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
-// app.use(cors({
-//     origin: ['http://localhost:5000', 'http://localhost:5173'],
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-//     exposedHeaders: ['Set-Cookie']
-// }));
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://servefrontend.onrender.com']
+  ? ['https://servefrontend.onrender.com', 'https://codespace-4bbx.onrender.com']
   : ['http://localhost:5173'];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   exposedHeaders: ['Set-Cookie']
 }));
-
 
 // Session configuration with MongoDB Atlas
 app.use(session({

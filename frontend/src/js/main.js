@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function checkAuthStatus() {
     try {
+        console.log('Checking auth status...');
         const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/status', {
             credentials: 'include',
             headers: {
@@ -53,14 +54,28 @@ async function checkAuthStatus() {
             }
         });
 
+        console.log('Auth status response:', response.status);
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+        
+        let data;
+        try {
+            data = JSON.parse(responseText);
+            console.log('Parsed auth status data:', data);
+        } catch (parseError) {
+            console.error('Error parsing response:', parseError);
+            throw new Error('Invalid JSON response');
+        }
+        
         if (response.ok) {
-            const data = await response.json();
-            if (data.isAuthenticated) {
+            if (data.isAuthenticated && data.user) {
                 showAuthenticatedUI(data.user);
             } else {
+                console.log('User not authenticated or missing user data');
                 showUnauthenticatedUI();
             }
         } else {
+            console.error('Auth status check failed:', response.status, data);
             showUnauthenticatedUI();
         }
     } catch (error) {

@@ -1,5 +1,5 @@
 // API configuration
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://codespace-4bbx.onrender.com/api';
 
 // Helper function to handle API responses
 async function handleResponse(response) {
