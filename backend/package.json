@@ -4,7 +4,9 @@
   "description": "Backend for Student Collaboration Platform",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",  
+    "install-all": "npm --prefix frontend install && npm install"
   },
   "keywords": [],
   "author": "",
