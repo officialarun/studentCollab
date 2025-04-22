@@ -10,16 +10,88 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .feature-card {
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        /* Chatbot Styles */
+        #chatbot-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 1000;
+        }
+        #chat-button {
+            background-color: #4F46E5;
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #chat-button:hover {
+            transform: scale(1.1);
+            background-color: #4338CA;
+        }
+        #chat-window {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 320px;
+            height: 400px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-direction: column;
+        }
+        #chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #4F46E5;
+            color: white;
+            margin-left: auto;
+        }
+        .bot-message {
+            background-color: #F3F4F6;
+            color: #1F2937;
+        }
+        #chat-input {
+            padding: 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            margin: 8px;
+        }
     </style>
+  <script type="module" crossorigin src="/assets/index-DDuCK8lq.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
+    <nav class="bg-white shadow-sm fixed w-full z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="/" class="text-2xl font-bold text-primary-600">StudentCollab</a>
+                        <a href="/" class="text-2xl font-bold text-primary-600">Codespace</a>
                     </div>
                 </div>
                 <div class="flex items-center">
@@ -47,20 +119,206 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main id="main-content" class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Content will be dynamically loaded here -->
-    </main>
+    <!-- Hero Section -->
+    <div class="gradient-bg pt-32 pb-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">Connect, Collaborate, Create</h1>
+                <p class="text-xl text-white opacity-90 mb-8 max-w-3xl mx-auto">
+                    Join a community of students working together to build amazing projects and grow their skills.
+                </p>
+                <div class="space-x-4">
+                    <a href="/signup.html" class="inline-block bg-white text-primary-600 px-8 py-3 rounded-md font-medium hover:bg-gray-100 transition duration-300">
+                        Get Started
+                    </a>
+                    <a href="/login.html" class="inline-block border-2 border-white text-white px-8 py-3 rounded-md font-medium hover:bg-white hover:text-primary-600 transition duration-300">
+                        Sign In
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Why Choose Codespace?</h2>
+                <p class="text-xl text-gray-600">Everything you need to collaborate effectively with fellow students</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="feature-card bg-gray-50 p-8 rounded-lg shadow-sm">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Find Collaborators</h3>
+                    <p class="text-gray-600">Connect with students who share your interests and skills. Build your network and find the perfect team members for your projects.</p>
+                </div>
+                <div class="feature-card bg-gray-50 p-8 rounded-lg shadow-sm">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Showcase Projects</h3>
+                    <p class="text-gray-600">Create and share your projects with the community. Get feedback, find collaborators, and build your portfolio.</p>
+                </div>
+                <div class="feature-card bg-gray-50 p-8 rounded-lg shadow-sm">
+                    <div class="text-primary-600 mb-4">
+                        <svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Grow Your Skills</h3>
+                    <p class="text-gray-600">Learn from others, share your knowledge, and develop new skills through collaborative projects and hackathons.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-primary-600 mb-2">500+</div>
+                    <div class="text-lg text-gray-600">Active Projects</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-primary-600 mb-2">1000+</div>
+                    <div class="text-lg text-gray-600">Registered Students</div>
+                </div>
+                <div class="p-6">
+                    <div class="text-4xl font-bold text-primary-600 mb-2">200+</div>
+                    <div class="text-lg text-gray-600">Successful Collaborations</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials Section -->
+    <div class="bg-gray-50 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">What Our Users Say</h2>
+                <p class="text-xl text-gray-600">Hear from students who have found success through our platform</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                            <span class="text-primary-600 font-medium text-lg">JD</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">John Doe</h4>
+                            <p class="text-gray-600">Computer Science Student</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"Codespace helped me find the perfect team for my final year project. The collaboration tools made it easy to work together remotely."</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                            <span class="text-primary-600 font-medium text-lg">AS</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Alice Smith</h4>
+                            <p class="text-gray-600">Software Engineering Student</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600">"I found amazing collaborators for my hackathon project. The platform made it easy to find people with the right skills and interests."</p>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-sm">
+                    <div class="flex items-center mb-4">
+                        <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                            <span class="text-primary-600 font-medium text-lg">RJ</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="text-lg font-semibold text-gray-900">Robert Johnson</h4>
+                            <p class="text-gray-600">"The project management features helped our team stay organized and meet our deadlines. Highly recommended for student projects!"</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Frequently Asked Questions</h2>
+                <p class="text-xl text-gray-600">Find answers to common questions about Codespace</p>
+            </div>
+            <div class="max-w-3xl mx-auto space-y-6">
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How do I find collaborators for my project?</h3>
+                    <p class="text-gray-600">You can browse through the projects section to find students looking for collaborators, or create your own project and wait for collaboration requests.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Can I join multiple projects?</h3>
+                    <p class="text-gray-600">Yes, you can join multiple projects as long as you can manage your time effectively. We recommend being transparent with project owners about your availability.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">How do hackathon teams work?</h3>
+                    <p class="text-gray-600">You can create or join hackathon teams, specify required skills, and manage team members. The platform helps you find the right people for your team.</p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Is Codespace free to use?</h3>
+                    <p class="text-gray-600">Yes, Codespace is completely free for students. We believe in providing a platform that helps students collaborate and grow their skills without any cost.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="bg-gray-50 py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to Start Collaborating?</h2>
+            <p class="text-xl text-gray-600 mb-8">Join thousands of students already building amazing projects together</p>
+            <a href="/signup.html" class="inline-block bg-primary-600 text-white px-8 py-3 rounded-md font-medium hover:bg-primary-700 transition duration-300">
+                Create Your Account
+            </a>
+        </div>
+    </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-8">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <footer class="bg-white border-t border-gray-200">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Codespace</h3>
+                    <p class="text-gray-600">Connecting students to collaborate on innovative projects and build their portfolio.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/projects.html" class="text-gray-600 hover:text-primary-600">All Projects</a></li>
+                        <li><a href="/dashboard.html" class="text-gray-600 hover:text-primary-600">Dashboard</a></li>
+                        <li><a href="/profile.html" class="text-gray-600 hover:text-primary-600">Profile</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-gray-500">
+                            <span class="sr-only">GitHub</span>
+                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.91-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-200">
             <p class="text-center text-gray-500 text-sm">
                 © 2024 Student Collaboration Platform. All rights reserved.
             </p>
+            </div>
         </div>
     </footer>
 
-    <script src="/src/js/main.js"></script>
 </body>
 </html> 
