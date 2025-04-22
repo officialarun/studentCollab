@@ -135,17 +135,33 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/hackathon-teams', hackathonTeamRoutes);
 
 // Serve static files from the frontend build directory
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+app.use(express.static(path.join(__dirname, '../frontend/dist'), {
+    setHeaders: (res, path) => {
+        if (path.endsWith('.js')) {
+            res.setHeader('Content-Type', 'application/javascript');
+        }
+    }
+}));
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ 
+        message: 'Something went wrong!',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// Handle 404 for API routes
+app.use('/api/*', (req, res) => {
+    res.status(404).json({ message: 'API route not found' });
+});
 
 // Serve index.html for all other routes (SPA support)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
-app.use((req, res, next) => {
-    res.status(404).json({ message: 'API route not found' });
-  });
-  
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

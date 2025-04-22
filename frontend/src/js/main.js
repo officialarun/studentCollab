@@ -46,6 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function checkAuthStatus() {
     try {
+        console.log('Checking auth status...');
         const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/status', {
             credentials: 'include',
             headers: {
@@ -53,14 +54,18 @@ async function checkAuthStatus() {
             }
         });
 
+        console.log('Auth status response:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('Auth status data:', data);
             if (data.isAuthenticated) {
                 showAuthenticatedUI(data.user);
             } else {
                 showUnauthenticatedUI();
             }
         } else {
+            console.error('Auth status check failed:', response.status);
             showUnauthenticatedUI();
         }
     } catch (error) {
