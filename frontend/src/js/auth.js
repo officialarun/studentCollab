@@ -49,14 +49,14 @@ if (loginForm) {
 
             const data = await handleResponse(response);
             
-            if (data.authenticated && data.user) {
+            if (data.user) {
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
                 
                 // Redirect to dashboard
                 window.location.href = '/dashboard.html';
             } else {
-                throw new Error('Authentication failed');
+                throw new Error(data.message || 'Authentication failed');
             }
         } catch (error) {
             if (error.message === 'Failed to fetch') {
@@ -137,7 +137,7 @@ async function checkAuth() {
         });
         const data = await handleResponse(response);
         
-        if (data.authenticated && data.user) {
+        if (data.isAuthenticated && data.user) {
             const user = data.user;
             localStorage.setItem('user', JSON.stringify(user));
             
