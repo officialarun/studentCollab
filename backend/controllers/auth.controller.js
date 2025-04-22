@@ -52,7 +52,10 @@ exports.login = (req, res, next) => {
             return next(err);
         }
         if (!user) {
-            return res.status(401).json({ message: info.message });
+            return res.status(401).json({ 
+                message: info.message || 'Invalid credentials',
+                error: process.env.NODE_ENV === 'development' ? info : undefined
+            });
         }
         req.login(user, (err) => {
             if (err) {
@@ -64,7 +67,9 @@ exports.login = (req, res, next) => {
                     id: user._id,
                     name: user.name,
                     email: user.email,
-                    enrollmentId: user.enrollmentId
+                    enrollmentId: user.enrollmentId,
+                    phoneNumber: user.phoneNumber,
+                    techStack: user.techStack
                 }
             });
         });
@@ -72,16 +77,32 @@ exports.login = (req, res, next) => {
 };
 
 exports.logout = (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+    }
+    
     req.logout((err) => {
         if (err) {
-            return res.status(500).json({ message: 'Error logging out' });
+            return res.status(500).json({ 
+                message: 'Error logging out',
+                error: process.env.NODE_ENV === 'development' ? err : undefined
+            });
         }
-        res.json({ message: 'Logged out successfully' });
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).json({ 
+                    message: 'Error destroying session',
+                    error: process.env.NODE_ENV === 'development' ? err : undefined
+                });
+            }
+            res.clearCookie('connect.sid');
+            res.json({ message: 'Logged out successfully' });
+        });
     });
 };
 
 exports.getCurrentUser = (req, res) => {
-    if (!req.user) {
+    if (!req.isAuthenticated()) {
         return res.status(401).json({ message: 'Not authenticated' });
     }
     res.json({
@@ -104,10 +125,15 @@ exports.getStatus = (req, res) => {
                 id: req.user._id,
                 name: req.user.name,
                 email: req.user.email,
-                enrollmentId: req.user.enrollmentId
+                enrollmentId: req.user.enrollmentId,
+                phoneNumber: req.user.phoneNumber,
+                techStack: req.user.techStack
             }
         });
     } else {
-        res.json({ isAuthenticated: false });
+        res.json({ 
+            isAuthenticated: false,
+            message: 'Not authenticated'
+        });
     }
 }; 

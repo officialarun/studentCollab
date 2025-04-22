@@ -36,29 +36,29 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
-// app.use(cors({
-//     origin: ['http://localhost:5000', 'http://localhost:5173'],
-//     credentials: true,
-//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
-//     exposedHeaders: ['Set-Cookie']
-// }));
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://servefrontend.onrender.com']
+  ? ['https://servefrontend.onrender.com', 'https://codespace-4bbx.onrender.com']
   : ['http://localhost:5173'];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   exposedHeaders: ['Set-Cookie']
 }));
 
-
 // Session configuration with MongoDB Atlas
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
@@ -71,7 +71,8 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
     }
 }));
 
@@ -81,9 +82,35 @@ app.use(passport.session());
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    console.error('Error:', err);
+    
+    // Handle CORS errors
+    if (err.name === 'CORS') {
+        return res.status(403).json({ 
+            message: err.message,
+            error: process.env.NODE_ENV === 'development' ? err : undefined
+        });
+    }
+
+    // Handle authentication errors
+    if (err.name === 'AuthenticationError') {
+        return res.status(401).json({ 
+            message: err.message,
+            error: process.env.NODE_ENV === 'development' ? err : undefined
+        });
+    }
+
+    // Handle validation errors
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({ 
+            message: 'Validation Error',
+            error: process.env.NODE_ENV === 'development' ? err : undefined
+        });
+    }
+
+    // Handle other errors
     res.status(500).json({ 
-        message: 'Something went wrong!',
+        message: 'Internal Server Error',
         error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
 });
