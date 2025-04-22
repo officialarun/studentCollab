@@ -4,9 +4,8 @@
   "description": "Backend for Student Collaboration Platform",
   "main": "server.js",
   "scripts": {
-  "start": "node server.js"
-}
-,
+    "start": "node server.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -17,7 +16,7 @@
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
-    "mongoose": "^8.1.1",
+    "mongoose": "^8.0.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0"
   },

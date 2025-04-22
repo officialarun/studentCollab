@@ -142,6 +142,10 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
 });
 
+app.use((req, res, next) => {
+    res.status(404).json({ message: 'API route not found' });
+  });
+  
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
