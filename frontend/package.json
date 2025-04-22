@@ -2,10 +2,11 @@
   "name": "student-collab-platform-frontend",
   "version": "1.0.0",
   "description": "Frontend for Student Collaboration Platform",
- "scripts": {
+"scripts": {
   "build": "vite build",
-  "start": "vite preview"
+  "preview": "vite preview --port $PORT"
 }
+
 ,
   "dependencies": {
     "axios": "^1.6.7",
