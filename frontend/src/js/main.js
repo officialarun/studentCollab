@@ -52,7 +52,7 @@ async function checkAuthStatus() {
 
         if (response.ok) {
             const data = await response.json();
-            if (data.authenticated) {
+            if (data.isAuthenticated) {
                 showAuthenticatedUI(data.user);
             } else {
                 showUnauthenticatedUI();
@@ -92,6 +92,7 @@ async function handleLogout() {
         });
 
         if (response.ok) {
+            localStorage.removeItem('user');
             window.location.href = '/';
         } else {
             console.error('Logout failed');
