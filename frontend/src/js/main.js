@@ -47,7 +47,10 @@ document.addEventListener('DOMContentLoaded', () => {
 async function checkAuthStatus() {
     try {
         const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/status', {
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
 
         if (response.ok) {
@@ -88,7 +91,10 @@ async function handleLogout() {
     try {
         const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/logout', {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
 
         if (response.ok) {

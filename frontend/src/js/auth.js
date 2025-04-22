@@ -96,11 +96,15 @@ if (signupForm) {
 
             const data = await handleResponse(response);
             
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Redirect to dashboard
-            window.location.href = '/dashboard.html';
+            if (data.user) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect to dashboard
+                window.location.href = '/dashboard.html';
+            } else {
+                throw new Error(data.message || 'Signup failed');
+            }
         } catch (error) {
             if (error.message === 'Failed to fetch') {
                 showError('Unable to connect to the server. Please make sure the backend server is running.');
@@ -119,7 +123,10 @@ if (logoutButton) {
         try {
             await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             });
             localStorage.removeItem('user');
             window.location.href = '/';
@@ -133,7 +140,10 @@ if (logoutButton) {
 async function checkAuth() {
     try {
         const response = await fetch(`${API_URL}/auth/status`, {
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
         const data = await handleResponse(response);
         
