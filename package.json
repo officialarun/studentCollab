@@ -1,0 +1,9 @@
+{
+    "name": "student-collab",
+    "scripts": {
+      "install-all": "npm --prefix frontend install && npm --prefix backend install",
+      "build": "npm --prefix frontend run build",
+      "start": "node backend/server.js"
+    }
+  }
+  
