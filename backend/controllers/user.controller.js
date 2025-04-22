@@ -140,4 +140,28 @@ exports.markAllNotificationsRead = async (req, res) => {
         console.error('Error marking all notifications as read:', error);
         res.status(500).json({ message: 'Error marking all notifications as read' });
     }
+};
+
+// Get other user's profile
+exports.getOtherUserProfile = async (req, res) => {
+    try {
+        const user = await User.findById(req.params.userId)
+            .select('-password')
+            .populate('projects')
+            .populate('collaborations');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the requesting user is in the target user's authenticatedUsers list
+        if (!user.authenticatedUsers.includes(req.user._id)) {
+            return res.status(403).json({ message: 'Not authorized to view this profile' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user profile:', error);
+        res.status(500).json({ message: 'Error fetching user profile' });
+    }
 }; 

@@ -301,22 +301,40 @@ exports.handleCollaborationRequest = async (req, res) => {
             if (!project.collaborators.includes(userId)) {
                 project.collaborators.push(userId);
                 await project.save();
-
-                // Add project to user's collaborations
-                requester.collaborations.push(projectId);
-                await requester.save();
-
-                // Create notification for requester
-                const notification = new Notification({
-                    user: userId,
-                    fromUser: req.user._id,
-                    project: projectId,
-                    type: 'collaboration_accepted',
-                    message: `Your collaboration request for "${project.title}" has been accepted`
-                });
-                await notification.save();
             }
-        } else if (action === 'reject') {
+
+            // Add project to user's collaborations
+            if (!requester.collaborations.includes(projectId)) {
+                requester.collaborations.push(projectId);
+            }
+
+            // Add project owner to collaborator's authenticatedUsers list
+            if (!requester.authenticatedUsers.includes(project.owner)) {
+                requester.authenticatedUsers.push(project.owner);
+            }
+
+            // Get project owner
+            const projectOwner = await User.findById(project.owner);
+            if (projectOwner) {
+                // Add collaborator to project owner's authenticatedUsers list
+                if (!projectOwner.authenticatedUsers.includes(userId)) {
+                    projectOwner.authenticatedUsers.push(userId);
+                    await projectOwner.save();
+                }
+            }
+
+            await requester.save();
+
+            // Create notification for requester
+            const notification = new Notification({
+                user: userId,
+                fromUser: req.user._id,
+                project: projectId,
+                type: 'collaboration_accepted',
+                message: `Your collaboration request for "${project.title}" has been accepted`
+            });
+            await notification.save();
+        } else {
             // Create notification for requester
             const notification = new Notification({
                 user: userId,

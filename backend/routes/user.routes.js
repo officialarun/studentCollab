@@ -15,5 +15,6 @@ router.get('/profile', isAuthenticated, userController.getProfile);
 router.put('/profile', isAuthenticated, userController.updateProfile);
 router.get('/projects', isAuthenticated, userController.getUserProjects);
 router.get('/collaborations', isAuthenticated, userController.getUserCollaborations);
+router.get('/:userId/profile', isAuthenticated, userController.getOtherUserProfile);
 
 module.exports = router; 

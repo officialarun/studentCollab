@@ -19,6 +19,108 @@
         .modal {
             z-index: 100;
         }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .hackathon-card {
+            min-width: 300px;
+            transition: all 0.3s ease;
+        }
+        .hackathon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Enhanced Chatbot Styles */
+        .dashboard-chatbot {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            cursor: default;
+            transform: translate(0, 0);
+        }
+        .dashboard-chatbot.collapsed {
+            transform: translateX(330px) !important;
+        }
+        .chatbot-header {
+            padding: 12px 16px;
+            background: #4F46E5;
+            color: white;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+            user-select: none;
+        }
+        .chatbot-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chatbot-input {
+            padding: 12px;
+            border-top: 1px solid #E5E7EB;
+        }
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            word-wrap: break-word;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-line;
+        }
+        .message.user {
+            align-self: flex-end;
+            background: #4F46E5;
+            color: white;
+            border-radius: 12px 12px 0 12px;
+        }
+        .message.bot {
+            align-self: flex-start;
+            background: #F3F4F6;
+            color: #1F2937;
+            border-radius: 12px 12px 12px 0;
+        }
+        .chatbot-toggle {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            width: 50px;
+            height: 50px;
+            background: #4F46E5;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+        }
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            background: #4338CA;
+        }
+        .chatbot-toggle.hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -164,12 +266,6 @@
         <div class="bg-white shadow rounded-lg p-6 mb-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-semibold text-gray-900">My Projects</h2>
-                <button id="createProjectBtn" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 flex items-center">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Create New Project
-                </button>
             </div>
             <div id="projectsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Projects will be populated here -->
@@ -216,10 +312,49 @@
 
         <!-- All Upcoming Hackathons Section -->
         <div class="bg-white shadow rounded-lg p-6">
-            <h2 class="text-xl font-semibold text-gray-900 mb-4">All Upcoming Hackathons</h2>
-            <div id="allHackathonsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- All hackathons will be populated here -->
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Listed Hackathon Teams : Join Now !</h2>
+            <div class="relative">
+                <div id="allHackathonsList" class="flex overflow-x-auto pb-4 space-x-6 scrollbar-hide">
+                    <!-- All hackathons will be populated here -->
+                </div>
             </div>
+        </div>
+
+        <!-- Enhanced Dashboard Chatbot -->
+        <div class="dashboard-chatbot collapsed">
+            <div class="chatbot-header">
+                <span class="font-medium">Dashboard Assistant</span>
+                <button id="toggleChatbot" class="text-white hover:text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="chatbot-messages" id="chatbotMessages">
+                <div class="message bot">
+                    Hello! I'm your dashboard assistant. I can help you with:
+                    - Viewing project details
+                    - Checking collaborators
+                    - Explore email of owner for collaborated projects
+                    - Viewing team members
+                    - Accessing collaborator profiles
+                    How can I help you today?
+                </div>
+            </div>
+            <div class="chatbot-input">
+                <div class="flex space-x-2">
+                    <input type="text" id="chatbotInput" placeholder="Type your message..." 
+                           class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent">
+                    <button id="sendMessage" class="px-4 py-2 text-white bg-primary-600 rounded-md hover:bg-primary-700">
+                        Send
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-toggle" id="chatbotToggle">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
         </div>
     </main>
 
@@ -308,7 +443,7 @@
             <!-- Bottom Bar -->
             <div class="mt-12 border-t border-gray-200 pt-8">
                 <p class="text-base text-gray-400 text-center">
-                    &copy; 2024 StudentCollab. All rights reserved.
+                    &copy; 2024 Codespace. All rights reserved.
                 </p>
             </div>
         </div>
@@ -377,6 +512,7 @@
             loadTeamsImIn();
             loadAllHackathons();
             loadNotifications();
+            initializeDashboardChatbot();
         });
 
         const API_URL = 'http://localhost:5000/api';
@@ -852,7 +988,7 @@
                 
                 if (!teams || teams.length === 0) {
                     teamsContainer.innerHTML = `
-                        <div class="col-span-full text-center py-8">
+                        <div class="min-w-full text-center py-8">
                             <p class="text-gray-500">No hackathon teams available at the moment.</p>
                         </div>
                     `;
@@ -864,7 +1000,7 @@
                     const isOwner = team.owner._id === currentUserId;
                     
                     return `
-                        <div class="bg-white p-6 rounded-lg shadow">
+                        <div class="hackathon-card bg-white p-6 rounded-lg shadow flex-shrink-0">
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">${team.teamName}</h3>
                             <p class="text-gray-600 mb-4">${team.hackathonName}</p>
                             <div class="mb-4">
@@ -907,7 +1043,7 @@
                 console.error('Error loading all hackathons:', error);
                 const teamsContainer = document.getElementById('allHackathonsList');
                 teamsContainer.innerHTML = `
-                    <div class="col-span-full text-center py-8">
+                    <div class="min-w-full text-center py-8">
                         <p class="text-red-500">Error loading hackathons. Please try again later.</p>
                     </div>
                 `;
@@ -1097,6 +1233,609 @@
                 console.error('Error resetting join requests:', error);
                 alert(error.message || 'Error resetting join requests');
             }
+        }
+
+        // Handle collaboration request (accept/reject)
+        async function handleCollaborationRequest(projectId, userId, action) {
+            try {
+                const response = await fetch(`${API_URL}/projects/handle-collaboration-request`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        projectId,
+                        userId,
+                        action
+                    }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Handle collaboration request response:', data);
+                
+                // Refresh notifications and collaborated projects
+                loadNotifications();
+                loadCollaboratedProjects();
+                
+                alert(action === 'accept' ? 'Collaboration request accepted!' : 'Collaboration request rejected.');
+            } catch (error) {
+                console.error('Error handling collaboration request:', error);
+                alert(error.message || 'Error handling collaboration request');
+            }
+        }
+
+        // Enhanced Dashboard Chatbot Implementation
+        function initializeDashboardChatbot() {
+            const chatbot = document.querySelector('.dashboard-chatbot');
+            const toggleButton = document.getElementById('toggleChatbot');
+            const toggleIcon = document.getElementById('chatbotToggle');
+            const messagesContainer = document.getElementById('chatbotMessages');
+            const inputField = document.getElementById('chatbotInput');
+            const sendButton = document.getElementById('sendMessage');
+            const header = document.querySelector('.chatbot-header');
+
+            // Make chatbot draggable
+            let isDragging = false;
+            let currentX = 0;
+            let currentY = 0;
+            let initialX = 0;
+            let initialY = 0;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            header.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                if (e.target === toggleButton) return; // Don't drag if clicking the toggle button
+                
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+
+                if (e.target === header || e.target.parentElement === header) {
+                    isDragging = true;
+                    chatbot.style.cursor = 'grabbing';
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+
+                    xOffset = currentX;
+                    yOffset = currentY;
+
+                    setTranslate(currentX, currentY, chatbot);
+                }
+            }
+
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                chatbot.style.cursor = 'default';
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            }
+
+            // Toggle chatbot visibility
+            toggleButton.addEventListener('click', () => {
+                if (chatbot.classList.contains('collapsed')) {
+                    chatbot.classList.remove('collapsed');
+                    toggleIcon.classList.add('hidden');
+                } else {
+                    chatbot.classList.add('collapsed');
+                    toggleIcon.classList.remove('hidden');
+                }
+            });
+
+            toggleIcon.addEventListener('click', () => {
+                chatbot.classList.remove('collapsed');
+                toggleIcon.classList.add('hidden');
+            });
+
+            // Add message to chat
+            function addMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                messageDiv.textContent = text;
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            // Send message function
+            async function sendMessage() {
+                const message = inputField.value.trim();
+                if (!message) return;
+
+                addMessage(message, 'user');
+                inputField.value = '';
+
+                try {
+                    const response = await getBotResponse(message);
+                    addMessage(response, 'bot');
+                } catch (error) {
+                    console.error('Error processing message:', error);
+                    addMessage("Sorry, I encountered an error. Please try again later.", 'bot');
+                }
+            }
+
+            // Get bot response
+            async function getBotResponse(message) {
+                const lowerMessage = message.toLowerCase();
+                
+                // Check for specific keywords and patterns
+                if (lowerMessage.includes('project') && (lowerMessage.includes('details') || lowerMessage.includes('info'))) {
+                    return await handleProjectDetails(message);
+                } else if (lowerMessage.includes('collaborators') && lowerMessage.includes('project')) {
+                    return await handleProjectCollaborators(message);
+                } else if (lowerMessage.includes('hackathon') && (lowerMessage.includes('team') || lowerMessage.includes('members'))) {
+                    return await handleHackathonTeam(message);
+                } else if (lowerMessage.includes('profile') && lowerMessage.includes('collaborator')) {
+                    return await handleCollaboratorProfile(message);
+                } else if (lowerMessage.includes('profile') && lowerMessage.includes('owner')) {
+                    return await handleOwnerProfile(message);
+                } else if (lowerMessage.includes('my projects')) {
+                    return await handleMyProjects();
+                } else if (lowerMessage.includes('my teams')) {
+                    return await handleMyTeams();
+                } else if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+                    return "Hello! How can I help you today?";
+                } else if (lowerMessage.includes('help')) {
+                    return "I can help you with:\n1. Viewing project details\n2. Checking project collaborators\n3. Managing hackathon teams\n4. Viewing team members\n5. Accessing collaborator profiles\n6. Accessing owner profiles\n7. Listing your projects\n8. Listing your teams\n\nWhat would you like to know?";
+                } else {
+                    return "I'm not sure I understand. I can help you with:\n1. Viewing project details\n2. Checking project collaborators\n3. Managing hackathon teams\n4. Viewing team members\n5. Accessing collaborator profiles\n6. Accessing owner profiles\n7. Listing your projects\n8. Listing your teams\n\nWhat would you like to know?";
+                }
+            }
+
+            // Handle project details query
+            async function handleProjectDetails(message) {
+                try {
+                    const projectTitle = message.match(/project\s+"([^"]+)"/i)?.[1] || 
+                                       message.match(/project\s+([^"]+)/i)?.[1];
+                    
+                    if (!projectTitle) {
+                        return "Please specify which project's details you want to view. Example: 'Show details for project \"My Project\"'";
+                    }
+
+                    const response = await fetch(`${API_URL}/users/projects`, {
+                        credentials: 'include'
+                    });
+                    const projects = await response.json();
+                    
+                    const project = projects.find(p => 
+                        p.title.toLowerCase().includes(projectTitle.toLowerCase())
+                    );
+
+                    if (!project) {
+                        return `Project "${projectTitle}" not found in your projects.`;
+                    }
+
+                    const detailsResponse = await fetch(`${API_URL}/projects/${project._id}`, {
+                        credentials: 'include'
+                    });
+                    const projectDetails = await detailsResponse.json();
+
+                    let responseText = `📋 Project Details for "${projectDetails.title}":\n\n`;
+                    responseText += `📝 Description:\n${projectDetails.description || 'No description available'}\n\n`;
+                    responseText += `🛠️ Tech Stack:\n${projectDetails.techStack?.join(', ') || 'Not specified'}\n\n`;
+                    responseText += `🔍 Looking For:\n${projectDetails.lookingFor?.join(', ') || 'Not specified'}\n\n`;
+                    if (projectDetails.githubLink) {
+                        responseText += `🔗 GitHub Link:\n${projectDetails.githubLink}\n\n`;
+                    }
+                    responseText += `📅 Created At: ${new Date(projectDetails.createdAt).toLocaleDateString()}\n`;
+                    responseText += `🔄 Last Updated: ${new Date(projectDetails.updatedAt).toLocaleDateString()}`;
+
+                    return responseText;
+                } catch (error) {
+                    console.error('Error fetching project details:', error);
+                    return "Sorry, I couldn't fetch the project details. Please try again later.";
+                }
+            }
+
+            // Handle project collaborators query
+            async function handleProjectCollaborators(message) {
+                try {
+                    const projectTitle = message.match(/project\s+"([^"]+)"/i)?.[1] || 
+                                       message.match(/project\s+([^"]+)/i)?.[1];
+                    
+                    if (!projectTitle) {
+                        return "Please specify which project you want to check collaborators for. Example: 'Show collaborators for project \"My Project\"'";
+                    }
+
+                    // First, try to find the project in user's projects
+                    const userProjectsResponse = await fetch(`${API_URL}/users/projects`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!userProjectsResponse.ok) {
+                        throw new Error('Failed to fetch user projects');
+                    }
+                    
+                    const userProjects = await userProjectsResponse.json();
+                    const project = userProjects.find(p => 
+                        p.title.toLowerCase().includes(projectTitle.toLowerCase())
+                    );
+
+                    if (!project) {
+                        // If not found in user's projects, try all projects
+                        const allProjectsResponse = await fetch(`${API_URL}/projects`, {
+                            credentials: 'include'
+                        });
+                        
+                        if (!allProjectsResponse.ok) {
+                            throw new Error('Failed to fetch all projects');
+                        }
+                        
+                        const allProjects = await allProjectsResponse.json();
+                        const foundProject = allProjects.find(p => 
+                            p.title.toLowerCase().includes(projectTitle.toLowerCase())
+                        );
+                        
+                        if (!foundProject) {
+                            return `Project "${projectTitle}" not found.`;
+                        }
+                        
+                        // Check if user is a collaborator or owner
+                        const isCollaborator = foundProject.collaborators.some(c => c._id === currentUserId);
+                        const isOwner = foundProject.owner._id === currentUserId;
+                        
+                        if (!isCollaborator && !isOwner) {
+                            return `You don't have access to view collaborators for project "${projectTitle}".`;
+                        }
+                        
+                        project = foundProject;
+                    }
+
+                    // Fetch detailed project info with populated collaborators
+                    const projectDetailsResponse = await fetch(`${API_URL}/projects/${project._id}`, {
+                        credentials: 'include'
+                    });
+                    
+                    if (!projectDetailsResponse.ok) {
+                        throw new Error('Failed to fetch project details');
+                    }
+                    
+                    const projectDetails = await projectDetailsResponse.json();
+                    
+                    if (!projectDetails.collaborators || projectDetails.collaborators.length === 0) {
+                        return `No collaborators found for project "${projectTitle}".`;
+                    }
+
+                    let responseText = `👥 Collaborators for "${projectTitle}":\n\n`;
+                    
+                    // Add owner information
+                    responseText += `👑 Owner:\n`;
+                    responseText += `  • ${projectDetails.owner.name}\n`;
+                    responseText += `  📧 ${projectDetails.owner.email}\n\n`;
+                    
+                    // Add collaborators information
+                    responseText += `🤝 Collaborators:\n`;
+                    projectDetails.collaborators.forEach((c, index) => {
+                        responseText += `${index + 1}. ${c.name}\n`;
+                        responseText += `   📧 ${c.email}\n`;
+                        if (c.role) responseText += `   👤 Role: ${c.role}\n`;
+                        if (c.skills?.length > 0) responseText += `   🛠️ Skills: ${c.skills.join(', ')}\n`;
+                        responseText += '\n';
+                    });
+
+                    return responseText;
+                } catch (error) {
+                    console.error('Error fetching project collaborators:', error);
+                    return "Sorry, I couldn't fetch the project collaborators. Please try again later.";
+                }
+            }
+
+            // Handle hackathon team query
+            async function handleHackathonTeam(message) {
+                try {
+                    const teamName = message.match(/team\s+"([^"]+)"/i)?.[1] || 
+                                   message.match(/team\s+([^"]+)/i)?.[1];
+                    
+                    if (!teamName) {
+                        return "Please specify which team you want to check. Example: 'Show members for team \"My Team\"'";
+                    }
+
+                    const response = await fetch(`${API_URL}/hackathon-teams/teams-im-in`, {
+                        credentials: 'include'
+                    });
+                    const teams = await response.json();
+                    
+                    const team = teams.find(t => 
+                        t.teamName.toLowerCase().includes(teamName.toLowerCase())
+                    );
+
+                    if (!team) {
+                        return `Team "${teamName}" not found in your teams.`;
+                    }
+
+                    let responseText = `Team Details for "${team.teamName}":\n\n`;
+                    responseText += `Hackathon: ${team.hackathonName}\n\n`;
+                    responseText += `Team Members:\n`;
+                    team.teamMembers.forEach(m => {
+                        responseText += `- ${m.user.name} (${m.position})\n`;
+                        if (m.skills?.length > 0) responseText += `  Skills: ${m.skills.join(', ')}\n`;
+                        responseText += '\n';
+                    });
+
+                    return responseText;
+                } catch (error) {
+                    console.error('Error fetching team details:', error);
+                    return "Sorry, I couldn't fetch the team details. Please try again later.";
+                }
+            }
+
+            // Handle collaborator profile query
+            async function handleCollaboratorProfile(message) {
+                try {
+                    // Extract collaborator name from message
+                    const collaboratorMatch = message.match(/show profile for collaborator ['"]([^'"]+)['"]/i);
+                    if (!collaboratorMatch) {
+                        return "Please specify the collaborator's name in the format: 'Show profile for collaborator \"Name\"'";
+                    }
+                    const collaboratorName = collaboratorMatch[1];
+
+                    // First get all user's projects
+                    const userProjectsResponse = await fetch(`${API_URL}/users/projects`, {
+                        credentials: 'include'
+                    });
+
+                    if (!userProjectsResponse.ok) {
+                        throw new Error('Failed to fetch user projects');
+                    }
+
+                    const userProjects = await userProjectsResponse.json();
+                    
+                    // Search for collaborator in all projects
+                    let foundCollaborator = null;
+                    let foundProject = null;
+
+                    for (const project of userProjects) {
+                        // Check project owner
+                        if (project.owner && project.owner.name.toLowerCase().includes(collaboratorName.toLowerCase())) {
+                            foundCollaborator = project.owner;
+                            foundProject = project;
+                            break;
+                        }
+
+                        // Check collaborators
+                        if (project.collaborators) {
+                            const collaborator = project.collaborators.find(
+                                c => c.name.toLowerCase().includes(collaboratorName.toLowerCase())
+                            );
+                            if (collaborator) {
+                                foundCollaborator = collaborator;
+                                foundProject = project;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!foundCollaborator) {
+                        return `No collaborator named "${collaboratorName}" found in your projects.`;
+                    }
+
+                    // Fetch the full profile data from the API
+                    const profileResponse = await fetch(`${API_URL}/users/${foundCollaborator._id}/profile`, {
+                        credentials: 'include'
+                    });
+
+                    if (!profileResponse.ok) {
+                        if (profileResponse.status === 403) {
+                            return `You are not authorized to view ${foundCollaborator.name}'s profile. You need to be an authenticated user.`;
+                        }
+                        throw new Error('Failed to fetch collaborator profile');
+                    }
+
+                    const profile = await profileResponse.json();
+
+                    // Format the response with detailed profile information
+                    let response = `👤 Profile Details for ${profile.name}\n\n`;
+                    response += `📧 Email:\n${profile.email || 'Not provided'}\n\n`;
+                    response += `🎓 Enrollment ID:\n${profile.enrollmentId || 'Not provided'}\n\n`;
+                    response += `📱 Phone:\n${profile.phoneNumber || 'Not provided'}\n\n`;
+
+                    if (profile.techStack && profile.techStack.length > 0) {
+                        response += `🛠️ Tech Stack:\n`;
+                        profile.techStack.forEach(tech => {
+                            response += `  • ${tech}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    // Add projects information
+                    if (profile.projects && profile.projects.length > 0) {
+                        response += `📂 Projects (${profile.projects.length}):\n`;
+                        profile.projects.forEach(project => {
+                            response += `  • ${project.title}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    // Add collaborations information
+                    if (profile.collaborations && profile.collaborations.length > 0) {
+                        response += `🤝 Collaborations (${profile.collaborations.length}):\n`;
+                        profile.collaborations.forEach(project => {
+                            response += `  • ${project.title}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    response += `📍 Found in project:\n"${foundProject.title}"`;
+
+                    return response;
+                } catch (error) {
+                    console.error('Error fetching collaborator profile:', error);
+                    return `Sorry, I couldn't fetch the collaborator's profile: ${error.message}`;
+                }
+            }
+
+            // Handle owner profile query
+            async function handleOwnerProfile(message) {
+                try {
+                    // Extract owner name from message
+                    const ownerMatch = message.match(/show profile for owner ['"]([^'"]+)['"]/i);
+                    if (!ownerMatch) {
+                        return "Please specify the owner's name in the format: 'Show profile for owner \"Name\"'";
+                    }
+                    const ownerName = ownerMatch[1];
+
+                    // Get all collaborated projects
+                    const collaborationsResponse = await fetch(`${API_URL}/users/collaborations`, {
+                        credentials: 'include'
+                    });
+
+                    if (!collaborationsResponse.ok) {
+                        throw new Error('Failed to fetch collaborated projects');
+                    }
+
+                    const collaboratedProjects = await collaborationsResponse.json();
+                    
+                    // Search for owner in collaborated projects
+                    let foundOwner = null;
+                    let foundProject = null;
+
+                    for (const project of collaboratedProjects) {
+                        if (project.owner && project.owner.name.toLowerCase().includes(ownerName.toLowerCase())) {
+                            foundOwner = project.owner;
+                            foundProject = project;
+                            break;
+                        }
+                    }
+
+                    if (!foundOwner) {
+                        return `No owner named "${ownerName}" found in your collaborated projects.`;
+                    }
+
+                    // Fetch the full profile data from the API
+                    const profileResponse = await fetch(`${API_URL}/users/${foundOwner._id}/profile`, {
+                        credentials: 'include'
+                    });
+
+                    if (!profileResponse.ok) {
+                        if (profileResponse.status === 403) {
+                            return `You are not authorized to view ${foundOwner.name}'s profile. You need to be an authenticated user.`;
+                        }
+                        throw new Error('Failed to fetch owner profile');
+                    }
+
+                    const profile = await profileResponse.json();
+
+                    // Format the response with detailed profile information
+                    let response = `👤 Profile Details for ${profile.name}\n\n`;
+                    response += `📧 Email:\n${profile.email || 'Not provided'}\n\n`;
+                    response += `🎓 Enrollment ID:\n${profile.enrollmentId || 'Not provided'}\n\n`;
+                    response += `📱 Phone:\n${profile.phoneNumber || 'Not provided'}\n\n`;
+
+                    if (profile.techStack && profile.techStack.length > 0) {
+                        response += `🛠️ Tech Stack:\n`;
+                        profile.techStack.forEach(tech => {
+                            response += `  • ${tech}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    // Add projects information
+                    if (profile.projects && profile.projects.length > 0) {
+                        response += `📂 Projects (${profile.projects.length}):\n`;
+                        profile.projects.forEach(project => {
+                            response += `  • ${project.title}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    // Add collaborations information
+                    if (profile.collaborations && profile.collaborations.length > 0) {
+                        response += `🤝 Collaborations (${profile.collaborations.length}):\n`;
+                        profile.collaborations.forEach(project => {
+                            response += `  • ${project.title}\n`;
+                        });
+                        response += '\n';
+                    }
+
+                    response += `📍 Found in project:\n"${foundProject.title}"`;
+
+                    return response;
+                } catch (error) {
+                    console.error('Error fetching owner profile:', error);
+                    return `Sorry, I couldn't fetch the owner's profile: ${error.message}`;
+                }
+            }
+
+            // Handle my projects query
+            async function handleMyProjects() {
+                try {
+                    const response = await fetch(`${API_URL}/users/projects`, {
+                        credentials: 'include'
+                    });
+                    const projects = await response.json();
+                    
+                    if (!projects || projects.length === 0) {
+                        return "You don't have any projects listed.";
+                    }
+
+                    let responseText = "📋 Your Projects:\n\n";
+                    projects.forEach((project, index) => {
+                        responseText += `Project ${index + 1}:\n`;
+                        responseText += `📌 Title: ${project.title}\n`;
+                        responseText += `📝 Description: ${project.description || 'No description'}\n`;
+                        responseText += `🛠️ Tech Stack: ${project.techStack?.join(', ') || 'Not specified'}\n`;
+                        responseText += `🔍 Looking For: ${project.lookingFor?.join(', ') || 'Not specified'}\n\n`;
+                    });
+
+                    return responseText;
+                } catch (error) {
+                    console.error('Error fetching projects:', error);
+                    return "Sorry, I couldn't fetch your projects. Please try again later.";
+                }
+            }
+
+            // Handle my teams query
+            async function handleMyTeams() {
+                try {
+                    const response = await fetch(`${API_URL}/hackathon-teams/teams-im-in`, {
+                        credentials: 'include'
+                    });
+                    const teams = await response.json();
+                    
+                    if (!teams || teams.length === 0) {
+                        return "You're not part of any hackathon teams.";
+                    }
+
+                    let responseText = "🏆 Your Teams:\n\n";
+                    teams.forEach((team, index) => {
+                        responseText += `Team ${index + 1}:\n`;
+                        responseText += `📌 Name: ${team.teamName}\n`;
+                        responseText += `🎯 Hackathon: ${team.hackathonName}\n`;
+                        responseText += `👥 Team Size: ${team.currentSize}/${team.teamSize}\n`;
+                        responseText += `👤 Your Role: ${team.teamMembers.find(m => m.user._id === currentUserId)?.position || 'Not specified'}\n\n`;
+                    });
+
+                    return responseText;
+                } catch (error) {
+                    console.error('Error fetching teams:', error);
+                    return "Sorry, I couldn't fetch your teams. Please try again later.";
+                }
+            }
+
+            // Event listeners
+            sendButton.addEventListener('click', sendMessage);
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
         }
     </script>
 </body>

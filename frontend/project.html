@@ -19,7 +19,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="/dashboard.html" class="text-2xl font-bold text-primary-600">StudentCollab</a>
+                        <a href="/dashboard.html" class="text-2xl font-bold text-primary-600">Codespace</a>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -142,10 +142,12 @@
         // Check authentication status
         async function checkAuth() {
             try {
+                console.log('Checking auth status...');
                 const response = await fetch(`${API_URL}/auth/status`, {
                     credentials: 'include'
                 });
                 const data = await response.json();
+                console.log('Auth response:', data);
                 
                 if (!data.isAuthenticated) {
                     window.location.href = '/login.html';
@@ -173,20 +175,30 @@
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const projectId = urlParams.get('id');
+                console.log('Project ID from URL:', projectId);
 
                 if (!projectId) {
                     throw new Error('Project ID not found');
                 }
 
+                console.log('Fetching project details...');
                 const response = await fetch(`${API_URL}/projects/${projectId}`, {
                     credentials: 'include'
                 });
 
                 if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Error response:', errorData);
                     throw new Error('Failed to load project');
                 }
 
                 currentProject = await response.json();
+                console.log('Project data:', currentProject);
+
+                if (!currentProject || !currentProject.owner) {
+                    throw new Error('Invalid project data received');
+                }
+
                 projectOwnerId = currentProject.owner._id;
 
                 // Update project details
@@ -225,18 +237,23 @@
                 const requestCollaborationBtn = document.getElementById('requestCollaborationBtn');
                 const projectOwnerActions = document.getElementById('projectOwnerActions');
 
-                if (currentUserId === projectOwnerId) {
-                    requestCollaborationBtn.classList.add('hidden');
-                    projectOwnerActions.classList.remove('hidden');
-                } else {
-                    // Check if user is already a collaborator
-                    const isCollaborator = currentProject.collaborators.some(c => c._id === currentUserId);
-                    if (isCollaborator) {
+                // Default state - show request button, hide owner actions
+                requestCollaborationBtn.classList.remove('hidden');
+                projectOwnerActions.classList.add('hidden');
+
+                // If we have both IDs, check ownership
+                if (currentUserId && projectOwnerId) {
+                    if (currentUserId.toString() === projectOwnerId.toString()) {
+                        // User is the owner - hide request button, show owner actions
                         requestCollaborationBtn.classList.add('hidden');
+                        projectOwnerActions.classList.remove('hidden');
                     } else {
-                        requestCollaborationBtn.classList.remove('hidden');
+                        // User is not the owner - check if they're already a collaborator
+                        const isCollaborator = currentProject.collaborators.some(c => c._id.toString() === currentUserId.toString());
+                        if (isCollaborator) {
+                            requestCollaborationBtn.classList.add('hidden');
+                        }
                     }
-                    projectOwnerActions.classList.add('hidden');
                 }
 
                 loadingState.classList.add('hidden');
@@ -245,6 +262,7 @@
                 console.error('Error loading project:', error);
                 loadingState.classList.add('hidden');
                 errorState.classList.remove('hidden');
+                errorState.textContent = `Error: ${error.message}`;
             }
         }
 
@@ -274,9 +292,14 @@
         // Load notifications
         async function loadNotifications() {
             try {
-                const response = await fetch(`${API_URL}/users/notifications`, {
+                const response = await fetch(`${API_URL}/notifications`, {
                     credentials: 'include'
                 });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load notifications');
+                }
+
                 const notifications = await response.json();
                 
                 const notificationsList = document.getElementById('notificationsList');
@@ -294,6 +317,7 @@
                 `).join('');
             } catch (error) {
                 console.error('Error loading notifications:', error);
+                // Don't show error to user for notifications as it's not critical
             }
         }
 

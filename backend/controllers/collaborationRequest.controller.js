@@ -110,47 +110,72 @@ exports.getUserRequests = async (req, res) => {
 // Accept a collaboration request
 exports.acceptRequest = async (req, res) => {
     try {
-        const { requestId } = req.params;
-        const userId = req.user._id;
-
-        const request = await CollaborationRequest.findById(requestId)
-            .populate('project');
-
+        const request = await CollaborationRequest.findById(req.params.requestId);
         if (!request) {
-            return res.status(404).json({ message: 'Collaboration request not found' });
+            return res.status(404).json({ message: 'Request not found' });
         }
 
-        // Check if user is the project owner
-        if (request.project.owner.toString() !== userId.toString()) {
-            return res.status(403).json({ message: 'Not authorized to accept this request' });
+        const project = await Project.findById(request.projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'Project not found' });
         }
 
-        // Update request status
-        request.status = 'accepted';
-        await request.save();
+        // Check if the user is the project owner
+        if (project.owner.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Only project owner can accept requests' });
+        }
 
-        // Add user to project collaborators
-        const project = request.project;
-        if (!project.collaborators.includes(request.user)) {
-            project.collaborators.push(request.user);
+        // Add collaborator to project
+        if (!project.collaborators.includes(request.fromUser)) {
+            project.collaborators.push(request.fromUser);
             await project.save();
+        }
+
+        // Get both users
+        const collaborator = await User.findById(request.fromUser);
+        const projectOwner = await User.findById(project.owner);
+
+        if (collaborator && projectOwner) {
+            // Add project to collaborator's collaborations
+            if (!collaborator.collaborations.includes(project._id)) {
+                collaborator.collaborations.push(project._id);
+            }
+
+            // Add project owner to collaborator's authenticatedUsers list
+            if (!collaborator.authenticatedUsers.includes(project.owner)) {
+                collaborator.authenticatedUsers.push(project.owner);
+            }
+
+            // Add collaborator to project owner's authenticatedUsers list
+            if (!projectOwner.authenticatedUsers.includes(request.fromUser)) {
+                projectOwner.authenticatedUsers.push(request.fromUser);
+            }
+
+            // Save both users
+            await collaborator.save();
+            await projectOwner.save();
         }
 
         // Create notification for the requester
         const notification = new Notification({
-            user: request.user,
-            type: 'collaboration_accepted',
-            message: `Your collaboration request for "${project.title}" has been accepted`,
-            data: {
-                projectId: project._id
-            }
+            type: 'request_accepted',
+            projectId: project._id,
+            fromUser: req.user.id,
+            toUser: request.fromUser,
+            message: `Your collaboration request for project "${project.title}" has been accepted`
         });
-
         await notification.save();
 
-        res.json({
+        // Delete the request
+        await CollaborationRequest.findByIdAndDelete(request._id);
+
+        res.json({ 
             message: 'Collaboration request accepted successfully',
-            request
+            data: {
+                projectId: project._id,
+                collaboratorId: request.fromUser,
+                projectOwnerId: project.owner
+            }
         });
     } catch (error) {
         console.error('Error accepting collaboration request:', error);
