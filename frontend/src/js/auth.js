@@ -49,11 +49,15 @@ if (loginForm) {
 
             const data = await handleResponse(response);
             
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Redirect to dashboard
-            window.location.href = '/dashboard.html';
+            if (data.authenticated && data.user) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Redirect to dashboard
+                window.location.href = '/dashboard.html';
+            } else {
+                throw new Error('Authentication failed');
+            }
         } catch (error) {
             if (error.message === 'Failed to fetch') {
                 showError('Unable to connect to the server. Please make sure the backend server is running.');
@@ -133,7 +137,7 @@ async function checkAuth() {
         });
         const data = await handleResponse(response);
         
-        if (data.isAuthenticated) {
+        if (data.authenticated && data.user) {
             const user = data.user;
             localStorage.setItem('user', JSON.stringify(user));
             
@@ -144,10 +148,21 @@ async function checkAuth() {
             
             if (authButtons) authButtons.style.display = 'none';
             if (userMenu) userMenu.style.display = 'block';
-            if (userName) userName.textContent = user.name;
+            if (userName) userName.textContent = user.name || user.email;
+        } else {
+            localStorage.removeItem('user');
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            if (authButtons) authButtons.style.display = 'block';
+            if (userMenu) userMenu.style.display = 'none';
         }
     } catch (error) {
         console.error('Auth check error:', error);
+        localStorage.removeItem('user');
+        const authButtons = document.getElementById('auth-buttons');
+        const userMenu = document.getElementById('user-menu');
+        if (authButtons) authButtons.style.display = 'block';
+        if (userMenu) userMenu.style.display = 'none';
     }
 }
 
