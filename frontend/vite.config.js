@@ -10,10 +10,13 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://codespace-4bbx.onrender.com/api',
+        target: 'https://codespace-4bbx.onrender.com/api',  // Change this if needed
         changeOrigin: true,
         secure: false
       }
     }
+  },
+  preview: {
+    allowedHosts: ['servefrontend.onrender.com', 'localhost']  // Add this line to allow your frontend URL
   }
-}); 
+});

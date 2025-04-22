@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 //     exposedHeaders: ['Set-Cookie']
 // }));
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://codespace-4bbx.onrender.com']
+  ? ['https://servefrontend.onrender.com']
   : ['http://localhost:5173'];
 
 app.use(cors({
