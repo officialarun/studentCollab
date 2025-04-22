@@ -66,6 +66,15 @@ exports.login = (req, res, next) => {
                 if (err) {
                     return next(err);
                 }
+                // Set additional cookie for session tracking
+                res.cookie('session_id', req.sessionID, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                    maxAge: 24 * 60 * 60 * 1000, // 1 day
+                    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+                });
+                
                 return res.json({
                     message: 'Login successful',
                     user: {

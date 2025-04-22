@@ -72,8 +72,10 @@ app.use(session({
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 1 day
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
-    }
+        domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined,
+        path: '/'
+    },
+    name: 'session_id' // Use consistent cookie name
 }));
 
 // Passport middleware
