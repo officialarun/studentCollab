@@ -38,6 +38,7 @@ if (loginForm) {
         const password = document.getElementById('password').value;
 
         try {
+            console.log('Attempting login...');
             const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
@@ -47,20 +48,38 @@ if (loginForm) {
                 body: JSON.stringify({ email, password }),
             });
 
+            console.log('Login response status:', response.status);
             const data = await handleResponse(response);
+            console.log('Login response data:', data);
             
             if (data.user) {
                 // Store user data in localStorage
                 localStorage.setItem('user', JSON.stringify(data.user));
                 
-                // Wait a moment to ensure the session cookie is set
-                setTimeout(() => {
-                    window.location.href = '/dashboard.html';
-                }, 100);
+                // Verify session before redirecting
+                const statusResponse = await fetch(`${API_URL}/auth/status`, {
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const statusData = await statusResponse.json();
+                console.log('Auth status after login:', statusData);
+                
+                if (statusData.isAuthenticated) {
+                    // Wait a moment to ensure the session cookie is set
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 500);
+                } else {
+                    throw new Error('Session not established after login');
+                }
             } else {
                 throw new Error(data.message || 'Authentication failed');
             }
         } catch (error) {
+            console.error('Login error:', error);
             if (error.message === 'Failed to fetch') {
                 showError('Unable to connect to the server. Please make sure the backend server is running.');
             } else {

@@ -49,9 +49,11 @@ exports.signup = async (req, res) => {
 exports.login = (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
+            console.error('Passport authentication error:', err);
             return next(err);
         }
         if (!user) {
+            console.log('Authentication failed:', info);
             return res.status(401).json({ 
                 message: info.message || 'Invalid credentials',
                 error: process.env.NODE_ENV === 'development' ? info : undefined
@@ -59,11 +61,13 @@ exports.login = (req, res, next) => {
         }
         req.login(user, (err) => {
             if (err) {
+                console.error('Session login error:', err);
                 return next(err);
             }
             // Set session cookie explicitly
             req.session.save((err) => {
                 if (err) {
+                    console.error('Session save error:', err);
                     return next(err);
                 }
                 // Set additional cookie for session tracking
@@ -72,9 +76,11 @@ exports.login = (req, res, next) => {
                     secure: process.env.NODE_ENV === 'production',
                     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                     maxAge: 24 * 60 * 60 * 1000, // 1 day
-                    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined
+                    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : undefined,
+                    path: '/'
                 });
                 
+                console.log('Login successful for user:', user.email);
                 return res.json({
                     message: 'Login successful',
                     user: {
