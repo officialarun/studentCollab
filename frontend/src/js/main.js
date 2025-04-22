@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/auth/status', {
+        const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/status', {
             credentials: 'include'
         });
 
@@ -86,7 +86,7 @@ function showUnauthenticatedUI() {
 
 async function handleLogout() {
     try {
-        const response = await fetch('/api/auth/logout', {
+        const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/logout', {
             method: 'POST',
             credentials: 'include'
         });
