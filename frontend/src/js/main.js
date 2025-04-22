@@ -46,13 +46,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function checkAuthStatus() {
     try {
-        const response = await fetch('/api/auth/status', {
-            credentials: 'include'
+        const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/status', {
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
 
         if (response.ok) {
             const data = await response.json();
-            if (data.authenticated) {
+            if (data.isAuthenticated) {
                 showAuthenticatedUI(data.user);
             } else {
                 showUnauthenticatedUI();
@@ -86,12 +89,16 @@ function showUnauthenticatedUI() {
 
 async function handleLogout() {
     try {
-        const response = await fetch('/api/auth/logout', {
+        const response = await fetch('https://codespace-4bbx.onrender.com/api/auth/logout', {
             method: 'POST',
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
 
         if (response.ok) {
+            localStorage.removeItem('user');
             window.location.href = '/';
         } else {
             console.error('Logout failed');

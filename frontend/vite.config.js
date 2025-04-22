@@ -5,15 +5,31 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false
+    sourcemap: false,
+    rollupOptions: {
+      input: {
+        main: './index.html',
+        login: './login.html',
+        signup: './signup.html',
+        dashboard: './dashboard.html',
+        projects: './projects.html',
+        project: './project.html',
+        profile: './profile.html',
+        hackathon: './hackathon-team.html'
+      }
+    }
   },
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://codespace-4bbx.onrender.com',  // Removed duplicate /api
         changeOrigin: true,
-        secure: false
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
+  },
+  preview: {
+    allowedHosts: ['servefrontend.onrender.com', 'localhost']  // Add this line to allow your frontend URL
   }
-}); 
+});

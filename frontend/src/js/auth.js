@@ -1,5 +1,5 @@
 // API Configuration
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://codespace-4bbx.onrender.com/api';
 
 // Helper function to show error messages
 function showError(message) {
@@ -49,11 +49,17 @@ if (loginForm) {
 
             const data = await handleResponse(response);
             
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Redirect to dashboard
-            window.location.href = '/dashboard.html';
+            if (data.user) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Wait a moment to ensure the session cookie is set
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 100);
+            } else {
+                throw new Error(data.message || 'Authentication failed');
+            }
         } catch (error) {
             if (error.message === 'Failed to fetch') {
                 showError('Unable to connect to the server. Please make sure the backend server is running.');
@@ -77,7 +83,7 @@ if (signupForm) {
             enrollmentId: document.getElementById('enrollmentId').value,
             phoneNumber: document.getElementById('phoneNumber').value,
             password: document.getElementById('password').value,
-            techStack: document.getElementById('techStack').value // Send as comma-separated string
+            techStack: document.getElementById('techStack').value
         };
 
         try {
@@ -92,11 +98,17 @@ if (signupForm) {
 
             const data = await handleResponse(response);
             
-            // Store user data in localStorage
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
-            // Redirect to dashboard
-            window.location.href = '/dashboard.html';
+            if (data.user) {
+                // Store user data in localStorage
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Wait a moment to ensure the session cookie is set
+                setTimeout(() => {
+                    window.location.href = '/dashboard.html';
+                }, 100);
+            } else {
+                throw new Error(data.message || 'Signup failed');
+            }
         } catch (error) {
             if (error.message === 'Failed to fetch') {
                 showError('Unable to connect to the server. Please make sure the backend server is running.');
@@ -115,7 +127,10 @@ if (logoutButton) {
         try {
             await fetch(`${API_URL}/auth/logout`, {
                 method: 'POST',
-                credentials: 'include'
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
             });
             localStorage.removeItem('user');
             window.location.href = '/';
@@ -129,11 +144,14 @@ if (logoutButton) {
 async function checkAuth() {
     try {
         const response = await fetch(`${API_URL}/auth/status`, {
-            credentials: 'include'
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+            }
         });
         const data = await handleResponse(response);
         
-        if (data.isAuthenticated) {
+        if (data.isAuthenticated && data.user) {
             const user = data.user;
             localStorage.setItem('user', JSON.stringify(user));
             
@@ -144,10 +162,21 @@ async function checkAuth() {
             
             if (authButtons) authButtons.style.display = 'none';
             if (userMenu) userMenu.style.display = 'block';
-            if (userName) userName.textContent = user.name;
+            if (userName) userName.textContent = user.name || user.email;
+        } else {
+            localStorage.removeItem('user');
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            if (authButtons) authButtons.style.display = 'block';
+            if (userMenu) userMenu.style.display = 'none';
         }
     } catch (error) {
         console.error('Auth check error:', error);
+        localStorage.removeItem('user');
+        const authButtons = document.getElementById('auth-buttons');
+        const userMenu = document.getElementById('user-menu');
+        if (authButtons) authButtons.style.display = 'block';
+        if (userMenu) userMenu.style.display = 'none';
     }
 }
 

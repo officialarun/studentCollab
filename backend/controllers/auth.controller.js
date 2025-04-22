@@ -61,48 +61,38 @@ exports.login = (req, res, next) => {
             if (err) {
                 return next(err);
             }
-            return res.json({
-                message: 'Login successful',
-                user: {
-                    id: user._id,
-                    name: user.name,
-                    email: user.email,
-                    enrollmentId: user.enrollmentId,
-                    phoneNumber: user.phoneNumber,
-                    techStack: user.techStack
+            // Set session cookie explicitly
+            req.session.save((err) => {
+                if (err) {
+                    return next(err);
                 }
+                return res.json({
+                    message: 'Login successful',
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        enrollmentId: user.enrollmentId,
+                        phoneNumber: user.phoneNumber,
+                        techStack: user.techStack
+                    }
+                });
             });
         });
     })(req, res, next);
 };
 
 exports.logout = (req, res) => {
-    if (!req.isAuthenticated()) {
-        return res.status(401).json({ message: 'Not authenticated' });
-    }
-    
     req.logout((err) => {
         if (err) {
-            return res.status(500).json({ 
-                message: 'Error logging out',
-                error: process.env.NODE_ENV === 'development' ? err : undefined
-            });
+            return res.status(500).json({ message: 'Error logging out' });
         }
-        req.session.destroy((err) => {
-            if (err) {
-                return res.status(500).json({ 
-                    message: 'Error destroying session',
-                    error: process.env.NODE_ENV === 'development' ? err : undefined
-                });
-            }
-            res.clearCookie('connect.sid');
-            res.json({ message: 'Logged out successfully' });
-        });
+        res.json({ message: 'Logged out successfully' });
     });
 };
 
 exports.getCurrentUser = (req, res) => {
-    if (!req.isAuthenticated()) {
+    if (!req.user) {
         return res.status(401).json({ message: 'Not authenticated' });
     }
     res.json({
@@ -119,6 +109,8 @@ exports.getCurrentUser = (req, res) => {
 
 exports.getStatus = (req, res) => {
     if (req.isAuthenticated()) {
+        // Refresh session
+        req.session.touch();
         res.json({
             isAuthenticated: true,
             user: {

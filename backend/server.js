@@ -36,31 +36,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
+// app.use(cors({
+//     origin: ['http://localhost:5000', 'http://localhost:5173'],
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+//     exposedHeaders: ['Set-Cookie']
+// }));
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://servefrontend.onrender.com', 'https://codespace-4bbx.onrender.com']
+  ? ['https://servefrontend.onrender.com']
   : ['http://localhost:5173'];
 
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
+  origin: allowedOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
   exposedHeaders: ['Set-Cookie']
 }));
 
+
 // Session configuration with MongoDB Atlas
 app.use(session({
     secret: process.env.SESSION_SECRET || 'your-secret-key',
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,
         ttl: 24 * 60 * 60, // 1 day
@@ -82,35 +82,9 @@ app.use(passport.session());
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error('Error:', err);
-    
-    // Handle CORS errors
-    if (err.name === 'CORS') {
-        return res.status(403).json({ 
-            message: err.message,
-            error: process.env.NODE_ENV === 'development' ? err : undefined
-        });
-    }
-
-    // Handle authentication errors
-    if (err.name === 'AuthenticationError') {
-        return res.status(401).json({ 
-            message: err.message,
-            error: process.env.NODE_ENV === 'development' ? err : undefined
-        });
-    }
-
-    // Handle validation errors
-    if (err.name === 'ValidationError') {
-        return res.status(400).json({ 
-            message: 'Validation Error',
-            error: process.env.NODE_ENV === 'development' ? err : undefined
-        });
-    }
-
-    // Handle other errors
+    console.error(err.stack);
     res.status(500).json({ 
-        message: 'Internal Server Error',
+        message: 'Something went wrong!',
         error: process.env.NODE_ENV === 'development' ? err.message : undefined
     });
 });
